@@ -7,8 +7,6 @@ Instalar dependências
 Buildar o TypeScript  
 Rodar o servidor para testar componentes  
 
----
-
 #  Instalação
 
 Instale dependências:
@@ -16,8 +14,6 @@ Instale dependências:
 ```bash
 npm install
 ```
-
----
 
 # Build da library
 
@@ -35,9 +31,7 @@ Isso usa o tsup para:
 
 - criar arquivos que serão publicados no npm
 
-- Sempre rode o build após alterar algo em src/.
-
----
+Sempre rode o build após alterar algo em src/.
 
 # Rodando servidor de testes
 
