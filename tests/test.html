@@ -9,7 +9,17 @@
 		<h1>Testing Sheet</h1>
 
 		<div class="container">
-            <auto-complete></auto-complete>
+
+
+            <fc-autocomplete placeholder="Countrys">
+                <fc-option value="france">France</fc-option>
+                <fc-option value="japan">Japan</fc-option>
+                <fc-option value="brazil">Brazil</fc-option>
+            </fc-autocomplete>
+            
+            <fc-autocomplete id="ac-fruits"> 
+            </fc-autocomplete>
+
 		</div>
 
 		<div class="container">
@@ -17,10 +27,38 @@
 		</div>
 
 	<script type="module">
+        // imports and register all components in the DOM
         import { defineAll } from '../src/index.ts';
-        
+    
         defineAll();
 
+        const acOptions = [
+            { label: 'Apple', value: '1' },
+            { label: 'Orange', value: '2' },
+            { label: 'Banana', value: '3' }
+        ];
+
+        // setting properties for fc-autocomplete via JS (with shadow DOM, not SEO friendly)
+        window.addEventListener('load', () => {
+
+            const acFruits = document.getElementById('ac-fruits');
+            
+            // acFruits.options = acOptions
+            acFruits.setProps({
+                options: acOptions,
+                placeholder: 'Busque uma fruta...',
+                validator: (value) => {
+                    // value é o valor selecionado (ex: '2')
+                    if (value === '3') {
+                        return 'Você não pode selecionar "admin".';
+                    }
+                    // Retorne null se for válido
+                    return null;
+                }
+            });
+
+            
+        });
     </script>
 	</body>
 </html>
