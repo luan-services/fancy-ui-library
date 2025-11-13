@@ -56,6 +56,25 @@ export class FcAutoComplete extends HTMLElement {
 		.bind(this) is the same here
 		*/
 		this.addEventListener('fc-option-select', this.onOptionSelect.bind(this) as EventListener);
+
+
+		// this listener is for when the user clicks outside the input so the dropdown can close
+		this.inputEl.addEventListener('blur', () => {
+            setTimeout(() => { // we add this delay
+                this.toggleDropdown(false);
+            }, 200);
+        });
+
+		// this listener is for when the user clicks on the input again (and it already had text)
+		this.inputEl.addEventListener('focus', () => {
+			const query = this.inputEl.value.toLowerCase().trim();
+			const options = Array.from(this.querySelectorAll('fc-option'));
+			const hasMatch = options.some((option) => {
+				const label = (option.getAttribute('label') || option.textContent || '').toLowerCase();
+				return label.includes(query);
+			});
+			this.toggleDropdown(hasMatch && query.length > 0);
+		});
 	}
 
 	/* this is the function that runs whenever an observed attribute is changed (via JS), note: this is called 
