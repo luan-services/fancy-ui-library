@@ -1,4 +1,5 @@
 import { template } from './fc-autocomplete.template';
+import { FcOption } from '../fc-option';
 
 export class FcAutoComplete extends HTMLElement {
 	
@@ -106,7 +107,48 @@ export class FcAutoComplete extends HTMLElement {
 		if (this.inputEl) this.inputEl.value = val;
 	}
 
+	get options() {
+
+		// search at the shadow dom for the 'slot' element
+		const slot:HTMLSlotElement | null = this.shadowRoot!.querySelector('slot'); /* doing only 'slot' will get the first slot element
+			not a problem because autocomplete has only 1 slot element, if it did not, should have done 'slot:([slot_name])' */
+
+		// get all elements inside the slot and filter only elements named <fc-option>
+		const optionElements = slot!.assignedElements().filter(
+			(el) => {
+				return el.tagName === 'fc-option'
+			}
+		);
+
+		// return an array of objects with {label, value}
+        return optionElements.map(opt => ({
+            label: (opt as FcOption).label, 
+            value: (opt as FcOption).value
+        }));
+    }
+
 	
+    set options(data: { label: string, value: string }[]) {
+		
+		// get already existing options and remove them (to prevent error if the user is trying to set options more than once)
+        const oldOptions = this.querySelectorAll('fc-option');
+        oldOptions.forEach(opt => opt.remove());
+
+        // for each data param, make an option and append to the shadow DOM
+        data.forEach((element) => {
+            const optEl = document.createElement('fc-option');
+            
+            // setting the values to the option;
+            optEl.setAttribute('value', element.value);
+            optEl.setAttribute('label', element.label); 
+            optEl.textContent = element.label;
+
+            // Passo C: Injeta no Light DOM (dentro do <fc-autocomplete>)
+            // Isso permite que o this.querySelectorAll('fc-option') do onInput as encontre.
+            this.appendChild(optEl);
+        });
+	}
+
 	/** helper functions for the eventListeners */
 
 	private onInput(e: Event) {
@@ -159,7 +201,7 @@ export class FcAutoComplete extends HTMLElement {
 
 	
 	// setProps function that lets the user updates any props via setProps({value: 'x'})
-	setProps(props: Record<string, any>) {
+	ssetProps(props: Record<string, any>) {
 		Object.entries(props).forEach(([key, val]) => {
 			if (key in this) {
 				(this as any)[key] = val;
@@ -168,4 +210,29 @@ export class FcAutoComplete extends HTMLElement {
 			this.setAttribute(key, val);
 		});
 	}
+
+	setProps(props: Record<string, any>) { // props type defines an array with {string : anytype }
+		
+	
+    for (const property in props) { // for each key in props
+
+		const value = props[property] // gets its value
+        
+        
+		// this block checks whether there is a getter, setter or private, variable for the property we are passing
+        if (property in this) {
+			// if so, call it and go to the next for iterator, ex: if the setter for 'options', this block calls it and append value to it
+            (this as any)[property] = value;
+            continue; 
+        }
+
+        /* this is another check, if we are here, our class does not have logic for the current property we are reading,
+    	we will paste it directly on the HTML tag, but only if it's text/number, we skip it if it is an Objects or Arrays,
+		because it does not work properly in the html tag */
+        if (['string', 'number', 'boolean'].includes(typeof property)) {
+            this.setAttribute(property, String(value)); // if so, paste it as an HTML attribute
+        }
+    }
 }
+}
+
