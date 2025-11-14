@@ -50,26 +50,18 @@ export class FcOption extends HTMLElement {
 		return this.hasAttribute('selected');
 	}
 
-	public set selected (isSelected: boolean) {
+	public set selected (isSelected: boolean) { 
+		/* when this runs, it will update selected attribute, and attributeChangedCallback will be called,
+		after that, name on attributeChangedCallback will be 'selected' and it will call updateSelection() function, which will 
+		also change the aria-selected property */
 
-		if (isSelected) { // if the component is already selected, removes the selection
-			this.setAttribute('selected', '');
-			this.updateSelection(); // updates aria-selected label
+
+		if (isSelected) { // if the setter is called and isSelected is true, adds the selection
+			this.setAttribute('selected', 'true');
 			return;
 		}
 
-		this.removeAttribute('selected'); // if not selected, now it is
-		this.updateSelection(); // also updates aria-selected label
-	}
-
-	/* this is the function that runs whenever an observed attribute is changed , note: this is called 
-	by the browser itself, so you need to accept all these three props even if you will not be using it
-	_ on it are for TypeScript to prevent the 'never used warning' */
-
-	attributeChangedCallback(name: string, _oldVal: string, _newVal: string) {
-		if (name === 'selected') { // guarantees the aria-selected to be correctly updated
-			this.updateSelection(); 
-		}
+		this.removeAttribute('selected'); // if not, remove it
 	}
 
 	/* this is the function that will be called when the element is inserted in the DOM */
@@ -102,13 +94,46 @@ export class FcOption extends HTMLElement {
 		});
 	}
 
+	/* this is the function that runs whenever an observed attribute is changed, note: this is called 
+	by the browser itself, so you need to accept all these three props even if you will not be using it
+	_ on it are for TypeScript to prevent the 'never used warning' */
+
+	attributeChangedCallback(name: string, _oldVal: string, _newVal: string) {
+		if (name === 'selected') { // guarantees the aria-selected to be correctly updated
+			this.updateSelection(); 
+		}
+	}
+
 	/* this is a helper method to update the aria-selected attribute */
 
-	updateSelection() {
+	private updateSelection() {
 		const button = this.shadowRoot!.querySelector('button');
 		if (!button) {
 			return;
 		}
 		button.setAttribute('aria-selected', this.selected ? 'true' : 'false');
+	}
+
+	setProps(props: Record<string, any>) { // props type defines an array with {string : anytype }
+		
+		for (const property in props) { // for each key in props
+
+			const value = props[property] // gets its value
+			
+			
+			// this block checks whether there is a getter, setter or private, variable for the property we are passing
+			if (property in this) {
+				// if so, call it and go to the next for iterator, ex: if the setter for 'options', this block calls it and append value to it
+				(this as any)[property] = value;
+				continue; 
+			}
+
+			/* this is another check, if we are here, our class does not have logic for the current property we are reading,
+			we will paste it directly on the HTML tag, but only if it's text/number, we skip it if it is an Objects or Arrays,
+			because it does not work properly in the html tag */
+			if (['string', 'number', 'boolean'].includes(typeof value)) {
+				this.setAttribute(property, String(value)); // if so, paste it as an HTML attribute
+			}
+		}
 	}
 }
