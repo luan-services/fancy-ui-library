@@ -1,17 +1,16 @@
 <!DOCTYPE html>
-<html>
+<html fc-theme="dark">
 	<head>
 		<meta charset="UTF-8" />
 		<title>Teste Components</title>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<link rel="stylesheet" type="text/css" href="test.css">
 	</head>
 	<body>
-		<h1>Testing Sheet</h1>
+        <div class="container" fc-theme="dark">
 
-		<div class="container">
-
-
-            <fc-autocomplete placeholder="Countrys">
+            <fc-autocomplete placeholder="Search for a country...">
                 <fc-option value="country-1">France</fc-option>
                 <fc-option value="country-2">Japan</fc-option>
                 <fc-option value="country-3">Brazil</fc-option>
@@ -20,34 +19,34 @@
             <fc-autocomplete id="ac-fruits"> 
             </fc-autocomplete>
 
-		</div>
+        </div>
 
-	<script type="module">
-        // imports and register all components in the DOM
-        import { defineAll } from '../src/index.ts';
-    
-        defineAll();
+        <script type="module">
+            // imports and register all components in the DOM
+            import { defineAll } from '../src/index.ts';
 
-        const acOptions = [
-            { label: 'Apple', value: 'fruit-1' },
-            { label: 'Orange', value: 'fruit-2' },
-            { label: 'Banana', value: 'fruit-3' }
-        ];
+            defineAll();
 
-        // setting properties for fc-autocomplete via JS (with shadow DOM, not SEO friendly)
-        window.addEventListener('load', () => {
+            const acOptions = [
+                { label: 'Apple', value: 'fruit-1' },
+                { label: 'Orange', value: 'fruit-2' },
+                { label: 'Banana', value: 'fruit-3' }
+            ];
 
-            const acFruits = document.getElementById('ac-fruits');
-            
-            // acFruits.options = acOptions
-            acFruits.setProps({
-                options: acOptions,
-                placeholder: 'Busque uma fruta...'
+            // setting properties for fc-autocomplete via JS (with shadow DOM, not SEO friendly)
+            window.addEventListener('load', () => {
+
+                const acFruits = document.getElementById('ac-fruits');
+                
+                // acFruits.options = acOptions
+                acFruits.setProps({
+                    options: acOptions,
+                    placeholder: 'Search for a fruit...'
+                });
+
+                console.log(acFruits.options)
+                
             });
-
-            console.log(acFruits.options)
-            
-        });
-    </script>
+        </script>
 	</body>
 </html>

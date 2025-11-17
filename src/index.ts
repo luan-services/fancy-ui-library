@@ -2,7 +2,7 @@
 component folder (index.ts), and re-exports it
 
 it also creates a defineAll(); function, which lets the user define all components at once */
-
+import "./styles";
 import { defineAutoComplete } from "./components/fc-autocomplete/index";
 import { defineOption } from "./components/fc-option";
 

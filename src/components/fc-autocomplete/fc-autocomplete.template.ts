@@ -9,27 +9,25 @@ export const template = document.createElement('template'); // create a new comp
 template.innerHTML = `
 	<style>${styles}</style>
 
-	<div class="fc-autocomplete">
+	<input 
+		id="fc-input" 
+		class="fc-input"
+		type="text" 
+		role="combobox"
+		aria-autocomplete="list"
+		aria-expanded="false"
+		aria-owns="fc-options"
+		part="input"
+		autocomplete="off"
+	/>
 
-		<input 
-			id="fc-input" 
-			class="fc-input"
-			type="text" 
-			role="combobox"
-			aria-autocomplete="list"
-			aria-expanded="false"
-			aria-owns="fc-options"
-			part="input"
-		/>
-
-		<div 
-			id="fc-options" 
-			part="options" 
-			class="fc-options" 
-			hidden
-		>
-			<slot></slot>
-		</div>
-		
+	<div 
+		id="fc-options" 
+		part="options" 
+		class="fc-options" 
+		hidden
+	>
+		<slot></slot>
 	</div>
+	
 `;

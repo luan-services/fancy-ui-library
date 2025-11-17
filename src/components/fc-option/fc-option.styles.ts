@@ -1,25 +1,28 @@
-// fc-option.styles.ts
 export const styles = `
 	:host {
 		display: block;
-		width: 100%;
-		box-sizing: border-box;
+    	font-family: var(--fc-font-family);
 	}
 
 	button.fc-option {
 		width: 100%;
 		text-align: left;
-		padding: 0.5rem 0.75rem;
-		background: var(--fc-option-bg, #fff);
+		background: var(--fc-option-bg);
+		color: var(--fc-option-fg);
+		padding: var(--fc-option-padding);
+		border-radius: var(--fc-option-radius);
 		border: none;
-		border-radius: var(--fc-border-radius, 4px);
-		color: var(--fc-text-color, #333);
-		cursor: pointer;
 		font: inherit;
+		cursor: pointer;
+		transition: background .15s ease, color .15s ease;
 	}
 
-	button.fc-option:hover,
+	button.fc-option:hover {
+		background: var(--fc-option-bg-hover);
+	}
+
 	button.fc-option[aria-selected="true"] {
-		background: var(--fc-option-hover-bg, #f0f0f0);
+		background: var(--fc-option-bg-selected);
+		color: var(--fc-option-fg-selected);
 	}
 `;
