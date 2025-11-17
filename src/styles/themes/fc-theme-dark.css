@@ -1,0 +1,17 @@
+:root[fc-theme="dark"] {
+	/* autocomplete component */
+	--fc-autocomplete-bg: var(--fc-gray-800);
+	--fc-autocomplete-fg: var(--fc-gray-200);
+	--fc-autocomplete-border: var(--fc-gray-700);
+    --fc-autocomplete-border-hover: var(--fc-gray-400);
+    --fc-autocomplete-border-focus: var(--fc-primary-500);
+    --fc-autocomplete-placeholder: var(--fc-gray-500);
+	
+    /* option component */
+	--fc-option-bg: var(--fc-gray-800);
+	--fc-option-bg-hover: var(--fc-gray-700);
+	--fc-option-bg-selected: var(--fc-primary-800);
+
+	--fc-option-fg: var(--fc-gray-100);
+	--fc-option-fg-selected: var(--fc-primary-100);
+}

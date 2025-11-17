@@ -1,0 +1,72 @@
+:root {
+
+	/* ------------------------------------------------------
+		PRIMITIVE COLOR SCALES — DO NOT OVERRIDE
+	------------------------------------------------------ */
+
+	--fc-gray-50:  #fafafa;
+	--fc-gray-100: #f4f4f5;
+	--fc-gray-200: #e4e4e7;
+	--fc-gray-300: #d4d4d8;
+	--fc-gray-400: #a1a1aa;
+	--fc-gray-500: #71717a;
+	--fc-gray-600: #52525b;
+	--fc-gray-700: #3f3f46;
+	--fc-gray-800: #27272a;
+	--fc-gray-900: #18181b;
+
+	--fc-primary-50:  #eff6ff;
+	--fc-primary-100: #dbeafe;
+	--fc-primary-200: #bfdbfe;
+	--fc-primary-300: #93c5fd;
+	--fc-primary-400: #60a5fa;
+	--fc-primary-500: #3b82f6;
+	--fc-primary-600: #2563eb;
+	--fc-primary-700: #1d4ed8;
+	--fc-primary-800: #1e40af;
+	--fc-primary-900: #1e3a8a;
+
+	/* semantic primitive colors */
+	--fc-success-500: #16a34a;
+	--fc-warning-500: #d97706;
+	--fc-danger-500:  #dc2626;
+
+	/* spacing scale */
+	--fc-space-1: 4px;
+	--fc-space-2: 8px;
+	--fc-space-3: 12px;
+	--fc-space-4: 16px;
+	--fc-space-5: 20px;
+	--fc-space-6: 24px;
+
+	/* radius */
+	--fc-radius-xs: 2px;
+	--fc-radius-sm: 4px;
+	--fc-radius-md: 6px;
+	--fc-radius-lg: 8px;
+	--fc-radius-xl: 12px;
+
+	/* border */
+	--fc-border-width-xs: 1px;
+	--fc-border-width-sm: 2px;
+	--fc-border-width-md: 3px;
+	--fc-border-width-lg: 4px;
+
+	/* shadows */
+	--fc-shadow-none: none;
+	--fc-shadow-sm: 0 1px 2px rgb(0 0 0 / 0.06);
+	--fc-shadow-md: 0 4px 6px rgb(0 0 0 / 0.1);
+	--fc-shadow-lg: 0 10px 15px rgb(0 0 0 / 0.15);
+
+	/* typography */
+	--fc-font-size-sm: 12px;
+	--fc-font-size-md: 14px;
+	--fc-font-size-lg: 16px;
+
+	--fc-font-weight-normal: 400;
+	--fc-font-weight-medium: 500;
+	--fc-font-weight-bold: 600;
+
+	--fc-line-height: 1.4;
+	--fc-font-family: system-ui, sans-serif;
+}
