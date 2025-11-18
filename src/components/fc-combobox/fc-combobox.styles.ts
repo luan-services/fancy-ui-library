@@ -5,35 +5,35 @@ export const styles = `
 		width: 100%;
 		box-sizing: border-box;
     	font-family: var(--fc-font-family);
-		max-width: var(--fc-autocomplete-max-width);
+		max-width: var(--fc-combobox-max-width);
 	}
 
 	.fc-input {
 		width: 100%;
 		box-sizing: border-box;
 
-		padding: var(--fc-autocomplete-padding);
-		border-radius: var(--fc-autocomplete-radius);
-		background: var(--fc-autocomplete-bg);
-		color: var(--fc-autocomplete-fg);
+		padding: var(--fc-combobox-padding);
+		border-radius: var(--fc-combobox-radius);
+		background: var(--fc-combobox-bg);
+		color: var(--fc-combobox-fg);
 
-		border: var(--fc-autocomplete-border-width) solid var(--fc-autocomplete-border);
+		border: var(--fc-combobox-border-width) solid var(--fc-combobox-border);
 		font-size: var(--fc-font-size-md);
 
-		box-shadow: var(--fc-autocomplete-shadow);
+		box-shadow: var(--fc-combobox-shadow);
 		transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 	}
 
 	.fc-input::placeholder {
-		color: var(--fc-autocomplete-placeholder);
+		color: var(--fc-combobox-placeholder);
 	}
 
 	.fc-input:hover {
-		border-color: var(--fc-autocomplete-border-hover);
+		border-color: var(--fc-combobox-border-hover);
 	}
 
 	.fc-input:focus {
-		border-color: var(--fc-autocomplete-border-focus);
+		border-color: var(--fc-combobox-border-focus);
 		outline: none;
 	}
 
@@ -43,12 +43,12 @@ export const styles = `
 		left: 0;
 		right: 0;
 		z-index: 10;
-		background: var(--fc-autocomplete-dropdown-bg, var(--fc-autocomplete-bg));
-		border: var(--fc-autocomplete-border-width) solid var(--fc-autocomplete-border);
-		border-radius: var(--fc-autocomplete-dropdown-radius, var(--fc-autocomplete-radius));
-		padding: var(--fc-autocomplete-dropdown-padding, calc(var(--fc-autocomplete-padding) - 5px));
-		box-shadow: var(--fc-autocomplete-dropdown-shadow);
-		max-height: var(--fc-autocomplete-dropdown-max-height, 240px);
+		background: var(--fc-combobox-dropdown-bg, var(--fc-combobox-bg));
+		border: var(--fc-combobox-border-width) solid var(--fc-combobox-border);
+		border-radius: var(--fc-combobox-dropdown-radius, var(--fc-combobox-radius));
+		padding: var(--fc-combobox-dropdown-padding, calc(var(--fc-combobox-padding) - 5px));
+		box-shadow: var(--fc-combobox-dropdown-shadow);
+		max-height: var(--fc-combobox-dropdown-max-height, 240px);
 		overflow-y: auto;
 		box-sizing: border-box;
 

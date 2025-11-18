@@ -10,14 +10,14 @@
 	<body>
         <div class="container">
 
-            <fc-autocomplete placeholder="Search for a country...">
+            <fc-combobox placeholder="Search for a country...">
                 <fc-option value="country-1">France</fc-option>
                 <fc-option value="country-2">Japan</fc-option>
                 <fc-option value="country-3">Brazil</fc-option>
-            </fc-autocomplete>
+            </fc-combobox>
             
-            <fc-autocomplete id="ac-fruits"> 
-            </fc-autocomplete>
+            <fc-combobox id="cb-fruits"> 
+            </fc-combobox>
 
         </div>
 
@@ -27,27 +27,27 @@
 
             defineAll();
 
-            const acOptions = [
+            const cbOptions = [
                 { label: 'Apple', value: 'fruit-1' },
                 { label: 'Orange', value: 'fruit-2' },
                 { label: 'Banana', value: 'fruit-3' }
             ];
 
-            // setting properties for fc-autocomplete via JS (with shadow DOM, not SEO friendly)
+            // setting properties for fc-combobox via JS (with shadow DOM, not SEO friendly)
             window.addEventListener('load', () => {
 
-                const acFruits = document.getElementById('ac-fruits');
+                const cbFruits = document.getElementById('cb-fruits');
                 
                 // acFruits.options = acOptions
-                acFruits.setProps({
-                    options: acOptions,
+                cbFruits.setProps({
+                    options: cbOptions,
                     placeholder: 'Search for a fruit...',
                     current: {value: "fruit-1", label: "Apple"}
                 });
 
-                console.log(acFruits.options)
+                console.log(cbFruits.options)
 
-                acFruits.addEventListener("fc-change", e => console.log(e.detail));
+                cbFruits.addEventListener("fc-change", e => console.log(e.detail));
                 
             });
         </script>

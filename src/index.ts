@@ -3,12 +3,12 @@ component folder (index.ts), and re-exports it
 
 it also creates a defineAll(); function, which lets the user define all components at once */
 import "./styles";
-import { defineAutoComplete } from "./components/fc-autocomplete/index";
+import { defineComboBox } from "./components/fc-combobox/index";
 import { defineOption } from "./components/fc-option";
 
-export { defineAutoComplete, defineOption }
+export { defineComboBox, defineOption }
 
 export const defineAll = () => {
-    defineAutoComplete();
+    defineComboBox();
     defineOption();
 }

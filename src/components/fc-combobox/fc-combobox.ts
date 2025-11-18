@@ -1,7 +1,7 @@
-import { template } from './fc-autocomplete.template';
+import { template } from './fc-combobox.template';
 import { FcOption } from '../fc-option';
 
-export class FcAutoComplete extends HTMLElement {
+export class FcComboBox extends HTMLElement {
 	
 	/* this is a static method that tells the browser which atributes should be 'watched', that means
 	whenever 'value' or 'selected' changes, 'attributeChangedCallback' will be called. */
@@ -26,11 +26,11 @@ export class FcAutoComplete extends HTMLElement {
 
 		/* about 'bind(this)':
 		o .bind(this) "amarra" o contexto. Ele garante que, quando a funcao onInput rodar, o this na função onInput continue sendo a 
-		instância da classe FcAutoComplete (o elemento <fc-autocomplete>), sem isso, o 'this' lá dentro estaria se 
+		instância da classe FcComboBox (o elemento <fc-combobox>), sem isso, o 'this' lá dentro estaria se 
 		referindo ao elemento <Input>, isso eh importante pq a função onInput procura elementos <options> dentro de this,
 		
-		options fica dentro de <fc-autocomplete>, se não houvesse bind(this), ele iria procurar <options> dentro do <input>,
-		que está dentro de <fc-autocomplete>, e não acharia nada
+		options fica dentro de <fc-combobox>, se não houvesse bind(this), ele iria procurar <options> dentro do <input>,
+		que está dentro de <fc-combobox>, e não acharia nada
 
 		ou seja, durante o constructor, precisamos bindar qualquer funcao que criamos aqui que use event listeners. o bind precisa
 		ser feito aqui, pois se for feito direto no connectCallback de construcao do listener, toda vez uma instancia nova da funcao
@@ -107,7 +107,7 @@ export class FcAutoComplete extends HTMLElement {
 
 		// search at the shadow dom for the 'slot' element
 		const slot:HTMLSlotElement | null = this.shadowRoot!.querySelector('slot'); /* doing only 'slot' will get the first slot element
-			not a problem because autocomplete has only 1 slot element, if it did not, should have done 'slot:([slot_name])' */
+			not a problem because combobox has only 1 slot element, if it did not, should have done 'slot:([slot_name])' */
 
 		// get all elements inside the slot and filter only elements named <fc-option>
 		const optionElements = slot!.assignedElements().filter(
@@ -139,7 +139,7 @@ export class FcAutoComplete extends HTMLElement {
             optEl.setAttribute('label', element.label); 
             optEl.textContent = element.label;
 
-            // Passo C: Injeta no Light DOM (dentro do <fc-autocomplete>)
+            // Passo C: Injeta no Light DOM (dentro do <fc-combobox>)
             // Isso permite que o this.querySelectorAll('fc-option') do onInput as encontre.
             this.appendChild(optEl);
         });
@@ -215,8 +215,7 @@ export class FcAutoComplete extends HTMLElement {
 			const label = rawLabel.toLowerCase(); // gets the label on the option
 
 			const match = label.includes(query); // checks if the query is on the label name
-
-			option.toggleAttribute('hidden', !match); // if so, show the option
+			option.style.display = match ? 'block' : 'none'; // if so, show the option
 
 			if (match) { // set hasMatch to true, to toggledropdown
 				hasMatch = true;
@@ -233,7 +232,7 @@ export class FcAutoComplete extends HTMLElement {
 			option.selected = false;
 		});
 		
-		this.optionValue = matchExactlyValue; // updates the value property of <fc-autocomplete>
+		this.optionValue = matchExactlyValue; // updates the value property of <fc-combobox>
 
 		this.dispatchEvent( // dispatch a new event for anything outside listen saying that the values are changed (to work with frameworks)
 			new CustomEvent('fc-change', 
@@ -256,7 +255,7 @@ export class FcAutoComplete extends HTMLElement {
 		const { value, label } = e.detail; // detail are the properties of the custom event from option
 
 		this.inputEl.value = label; // updates the input text to the option text
-		this.optionValue = value; // updates the value property of <fc-autocomplete>
+		this.optionValue = value; // updates the value property of <fc-combobox>
 
 		// get all option elements and makes an array
         const options = Array.from(this.querySelectorAll('fc-option')) as FcOption[];
@@ -341,6 +340,7 @@ export class FcAutoComplete extends HTMLElement {
 				dropdown.hidden = true;
 				dropdown.style.height = "0px";
 				dropdown.dataset.state = "";
+				// this.removeAttribute("open");
 			}
 			dropdown.removeEventListener("animationend", onEnd);
 		};

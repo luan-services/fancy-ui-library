@@ -2,19 +2,19 @@
     /* all components */
     font-family: var(--fc-font-family);
 
-    /* autocomplete component */
-    --fc-autocomplete-bg: var(--fc-white);
-    --fc-autocomplete-fg: var(--fc-gray-900);
-    --fc-autocomplete-border: var(--fc-gray-300);
-    --fc-autocomplete-border-hover: var(--fc-gray-400);
-    --fc-autocomplete-border-focus: var(--fc-primary-400);
-    --fc-autocomplete-placeholder: var(--fc-gray-400);
+    /* combobox component */
+    --fc-combobox-bg: var(--fc-white);
+    --fc-combobox-fg: var(--fc-gray-900);
+    --fc-combobox-border: var(--fc-gray-300);
+    --fc-combobox-border-hover: var(--fc-gray-400);
+    --fc-combobox-border-focus: var(--fc-primary-400);
+    --fc-combobox-placeholder: var(--fc-gray-400);
 
-    --fc-autocomplete-max-width: 412px;
-    --fc-autocomplete-padding: var(--fc-space-3);
-    --fc-autocomplete-border-width: var(--fc-border-width-xs);
-    --fc-autocomplete-radius: var(--fc-radius-md);
-    --fc-autocomplete-shadow: var(--fc-shadow-none);
+    --fc-combobox-max-width: 412px;
+    --fc-combobox-padding: var(--fc-space-3);
+    --fc-combobox-border-width: var(--fc-border-width-xs);
+    --fc-combobox-radius: var(--fc-radius-md);
+    --fc-combobox-shadow: var(--fc-shadow-none);
 
     /* option component */
     --fc-option-bg: var(--fc-white);

@@ -25,8 +25,4 @@ export const styles = `
 		background: var(--fc-option-bg-selected);
 		color: var(--fc-option-fg-selected);
 	}
-
-	button.fc-option[hidden=true] {
-		display: none;
-	}
 `;

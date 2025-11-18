@@ -1,4 +1,4 @@
-import { styles } from './fc-autocomplete.styles'; // import all the css styles from the stylesheeet
+import { styles } from './fc-combobox.styles'; // import all the css styles from the stylesheeet
 
 export const template = document.createElement('template'); // create a new component template that will be put in the shadow DOM
 
