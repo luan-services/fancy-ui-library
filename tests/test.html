@@ -41,10 +41,13 @@
                 // acFruits.options = acOptions
                 acFruits.setProps({
                     options: acOptions,
-                    placeholder: 'Search for a fruit...'
+                    placeholder: 'Search for a fruit...',
+                    current: {value: "fruit-1", label: "Apple"}
                 });
 
                 console.log(acFruits.options)
+
+                acFruits.addEventListener("fc-change", e => console.log(e.detail));
                 
             });
         </script>

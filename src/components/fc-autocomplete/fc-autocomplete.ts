@@ -6,7 +6,7 @@ export class FcAutoComplete extends HTMLElement {
 	/* this is a static method that tells the browser which atributes should be 'watched', that means
 	whenever 'value' or 'selected' changes, 'attributeChangedCallback' will be called. */
 	static get observedAttributes() {
-		return ['placeholder', 'name', 'value'];
+		return ['placeholder', 'name', 'value', 'label'];
 	}
 
 	/* these are declared attributes, that later on will receive both elements from the shadowRoot with 
@@ -14,6 +14,7 @@ export class FcAutoComplete extends HTMLElement {
 	*/
 	private inputEl!: HTMLInputElement;
 	private dropdownEl!: HTMLElement;
+	private optionValue: string = ''; // references the current selected option value
 
 	/* this is the class constructor, whenever you create a new element on js or at the dom, this will be called */
 	constructor() {
@@ -56,12 +57,50 @@ export class FcAutoComplete extends HTMLElement {
 		the parent decides when an option will be selected or not.
 	*/
 
+	/* value is a getter only, you cannot set an initial value, you can only do it by typing or clicking on an option
+	*/
 	get value() {
+		return this.optionValue;
+	}
+
+	get label() {
 		return this.inputEl?.value ?? '';
 	}
 
-	set value(val: string) {
-		if (this.inputEl) this.inputEl.value = val;
+	/* value and label must coexist together, so it needs only one setter that sets both
+	*/
+	set current(data: {value: string, label: string}) {
+		if (!data || !data.label || !data.value) {
+			return;
+		}
+
+		if (!this.inputEl) {
+			requestAnimationFrame(() => (this.current = data));
+			return;
+		}
+
+		this.inputEl.value = data.label;
+		this.optionValue = data.value;
+		
+		const options = Array.from(this.querySelectorAll('fc-option')) as FcOption[];
+
+		options.forEach(option => {
+			const isSelected = option.value === data.value;
+			option.selected = isSelected;
+		});
+
+		this.toggleDropdown(false);
+		
+		this.dispatchEvent(
+			new CustomEvent('fc-change', {
+				detail: { 
+					value: data.value, 
+					label: data.label 
+				},
+				bubbles: true,
+				composed: true,
+			})
+		);
 	}
 
 	get options() {
@@ -162,15 +201,18 @@ export class FcAutoComplete extends HTMLElement {
 
 	private onInput(e: Event) {
 		//gets the element binded by the event listener that called this function (inputEl), and retrieve its value (text)
-		const query = (e.target as HTMLInputElement).value.toLowerCase().trim();
+		const rawQuery = (e.target as HTMLInputElement).value;
+		const query = rawQuery.toLowerCase().trim();
 
 		// get all option elements and makes an array
 		const options = Array.from(this.querySelectorAll('fc-option')) as FcOption[];
 
 		let hasMatch = false;
+		let matchExactlyValue = ''; // attribute to store the value of an option if the option matches exactly the query
 
 		options.forEach((option) => { 
-			const label = (option.getAttribute('label') || option.textContent || '').toLowerCase(); // gets the label on the option
+			const rawLabel = (option.getAttribute('label') || option.textContent || '');
+			const label = rawLabel.toLowerCase(); // gets the label on the option
 
 			const match = label.includes(query); // checks if the query is on the label name
 
@@ -180,10 +222,31 @@ export class FcAutoComplete extends HTMLElement {
 				hasMatch = true;
 			}
 
-			const matchExactly = (query === label && query.length > 0); // checks if the query is exactly the option
+			const matchExactly = (rawQuery === rawLabel && query.length > 0); // checks if the query is exactly the option
 
-			option.selected = matchExactly // if match exactly, set the option as selected, if not, remove selected attribute(query === label)
+			if (matchExactly) { // if match exactly, set the option as selected, if not, remove selected attribute(query === label)
+				matchExactlyValue = option.value;
+				option.selected = true;
+				return;
+			}
+
+			option.selected = false;
 		});
+		
+		this.optionValue = matchExactlyValue; // updates the value property of <fc-autocomplete>
+
+		this.dispatchEvent( // dispatch a new event for anything outside listen saying that the values are changed (to work with frameworks)
+			new CustomEvent('fc-change', 
+			{
+				detail: { 
+					value: matchExactlyValue, 
+					label: rawQuery
+				},
+				bubbles: true,
+				composed: true,
+			}
+		));
+
 		// toggles dropdown if match - true and the options quantity > 0
 		this.toggleDropdown(hasMatch && query.length > 0);
 	}
@@ -193,12 +256,12 @@ export class FcAutoComplete extends HTMLElement {
 		const { value, label } = e.detail; // detail are the properties of the custom event from option
 
 		this.inputEl.value = label; // updates the input text to the option text
+		this.optionValue = value; // updates the value property of <fc-autocomplete>
 
 		// get all option elements and makes an array
         const options = Array.from(this.querySelectorAll('fc-option')) as FcOption[];
 
 		options.forEach((option) => {
-
 			const selected = (option.value === value); // checks if the selected option is the current option
 			option.selected = selected // if so, set the option as selected, if not, remove selected attribute(query === label)
         });
