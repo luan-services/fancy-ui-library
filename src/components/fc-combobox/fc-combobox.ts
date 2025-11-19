@@ -3,10 +3,10 @@ import { FcOption } from '../fc-option';
 
 export class FcComboBox extends HTMLElement {
 	
-	/* this is a static method that tells the browser which atributes should be 'watched', that means
-	whenever 'value' or 'selected' changes, 'attributeChangedCallback' will be called. */
+	/* this is a static method that tells the browser which atributes should be 'watched', that means whenever 'name' 
+	or 'placeholder' attributes are set by the user like <fc-combobox name="a">, 'attributeChangedCallback' will be called. */
 	static get observedAttributes() {
-		return ['placeholder', 'name', 'value', 'label'];
+		return ['placeholder', 'name'];
 	}
 
 	/* these are declared attributes, that later on will receive both elements from the shadowRoot with 
@@ -15,6 +15,12 @@ export class FcComboBox extends HTMLElement {
 	private inputEl!: HTMLInputElement;
 	private dropdownEl!: HTMLElement;
 	private optionValue: string = ''; // references the current selected option value
+	
+	// this signals the browser this custom element (<fc-combobox>) should participate in forms, allowing its value to be submitted along with the form data.
+	static formAssociated = true; 
+	// this is an reference that provides methods and properties for custom elements to access form control features
+	private internals: ElementInternals;
+
 
 	/* this is the class constructor, whenever you create a new element on js or at the dom, this will be called */
 	constructor() {
@@ -23,6 +29,9 @@ export class FcComboBox extends HTMLElement {
 		shadow.appendChild(
 			template.content.cloneNode(true) // clone our html and css template and append it to the shadow DOM
 		); 
+
+		// attatch iternals functions to the reference to use the form control features with 'this.internals.*'
+		this.internals = this.attachInternals(); 
 
 		/* about 'bind(this)':
 		o .bind(this) "amarra" o contexto. Ele garante que, quando a funcao onInput rodar, o this na função onInput continue sendo a 
@@ -81,6 +90,7 @@ export class FcComboBox extends HTMLElement {
 
 		this.inputEl.value = data.label;
 		this.optionValue = data.value;
+		this.internals.setFormValue(data.value); // update the form 'value' property: <fc-combobox value=""> to our selected value
 		
 		const options = Array.from(this.querySelectorAll('fc-option')) as FcOption[];
 
@@ -103,10 +113,26 @@ export class FcComboBox extends HTMLElement {
 		);
 	}
 
-	get options() {
+	get placeholder() {
+		return this.getAttribute("placeholder") ?? "";
+	}
 
+	set placeholder(val: string) {
+		this.setAttribute("placeholder", val);
+	}
+
+	get name() {
+		return this.getAttribute('name') ?? '';
+	}
+
+	set name(val: string) {
+		this.setAttribute('name', val);
+	}
+
+	get options() {
 		// search at the shadow dom for the 'slot' element
-		const slot:HTMLSlotElement | null = this.shadowRoot!.querySelector('slot'); /* doing only 'slot' will get the first slot element
+		const slot:HTMLSlotElement | null = this.shadowRoot!.querySelector('slot'); 
+		/* doing only 'slot' will get the first slot element
 			not a problem because combobox has only 1 slot element, if it did not, should have done 'slot:([slot_name])' */
 
 		// get all elements inside the slot and filter only elements named <fc-option>
@@ -122,7 +148,6 @@ export class FcComboBox extends HTMLElement {
             value: (opt as FcOption).value
         }));
     }
-
 	
     set options(data: { label: string, value: string }[]) {
 		
@@ -152,10 +177,20 @@ export class FcComboBox extends HTMLElement {
 		this.inputEl = this.shadowRoot!.getElementById('fc-input') as HTMLInputElement;
 		this.dropdownEl = this.shadowRoot!.getElementById('fc-options') as HTMLElement;
 
-		// apply all properties to them (if the user has set it (via js or directly with prop=""))
+
+		// if the attributes below exists (if it was applied by the user (via js or directly with prop="")), apply the properties
 
 		if (this.hasAttribute('placeholder')) { // applying the placeholder text to the input
 			this.inputEl.placeholder = this.getAttribute('placeholder')!;
+		}
+
+
+		/* if 'name' exists, this component will be considered a form part, so it'll set the form 
+		'value' property: <fc-combobox value="">, do it only once when the component is created
+		*/
+		if (this.hasAttribute('name')) {
+			/* it will be '' if no option is selected on mount (default) (this.value means calling get value()) */
+			this.internals.setFormValue(this.value, this.getAttribute('name')!); 
 		}
 
 		/* this functions add an input event listener to the input element, whenever the users type anything,
@@ -188,6 +223,14 @@ export class FcComboBox extends HTMLElement {
 		if (name === 'placeholder' && this.inputEl) {
 			this.inputEl.placeholder = newVal;
 		} 
+
+		/* in this case, same as on the connectedCallback, if 'name' is set by js (cbFruits.name = "a"), the function bellow will 
+		set form value and the component will be considered a form part */
+		if (name === 'name') {
+			// update the form 'value' property: <fc-combobox value="">
+			// it will be '' if no option is selected on mount (default) (this.value means calling get value())
+			this.internals.setFormValue(this.value, newVal);
+		}
 	}
 	
 	/* this is the cleaning up function, it'll be called when the element is REMOVED from the DOM, here, we want
@@ -233,6 +276,7 @@ export class FcComboBox extends HTMLElement {
 		});
 		
 		this.optionValue = matchExactlyValue; // updates the value property of <fc-combobox>
+		this.internals.setFormValue(matchExactlyValue); // also update the form 'value' property: <fc-combobox value="">
 
 		this.dispatchEvent( // dispatch a new event for anything outside listen saying that the values are changed (to work with frameworks)
 			new CustomEvent('fc-change', 
@@ -256,6 +300,7 @@ export class FcComboBox extends HTMLElement {
 
 		this.inputEl.value = label; // updates the input text to the option text
 		this.optionValue = value; // updates the value property of <fc-combobox>
+		this.internals.setFormValue(value); // also update the form 'value' property: <fc-combobox value="">
 
 		// get all option elements and makes an array
         const options = Array.from(this.querySelectorAll('fc-option')) as FcOption[];
@@ -290,6 +335,7 @@ export class FcComboBox extends HTMLElement {
 	};
 
 	private onFocus(e: FocusEvent) {
+		/*
 		const query = this.inputEl.value.toLowerCase().trim();
 		const options = Array.from(this.querySelectorAll('fc-option'));
 		const hasMatch = options.some((option) => {
@@ -297,6 +343,8 @@ export class FcComboBox extends HTMLElement {
 			return label.includes(query);
 		});
 		this.toggleDropdown(hasMatch && query.length > 0);
+		*/
+		this.toggleDropdown(true);
 	};
 
 	private toggleDropdown(show: boolean) {
