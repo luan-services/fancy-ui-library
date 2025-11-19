@@ -1,6 +1,22 @@
 import { template } from './fc-combobox.template';
 import { FcOption } from '../fc-option';
 
+
+/* in this component, the properties 'label' and 'value' doesn't exist as ACTUAL attributes:
+
+	VALUE is a mirror from the 'value' attribute of CHILD fc-option element
+	LABEL is a plain text that can be either typed and will be set as 'label' attribute of this component's CHILD input, or
+	it can be selected from an option and will be a mirror from the 'label' attribute of the CHILD fc-option
+
+	placeholder - an actual attribute of <fc-combobox>
+	name - an actual attribute of <fc-combobox> (used to define the element as part of a form if wanted to)
+
+	value - as said above, it is a mirror, but it also will be the formElement value
+	label - as said above, another mirror
+
+	options (set and get) - used to add <fc-option> elements inside the combobox with js
+*/
+
 export class FcComboBox extends HTMLElement {
 	
 	/* this is a static method that tells the browser which atributes should be 'watched', that means whenever 'name' 
@@ -55,8 +71,9 @@ export class FcComboBox extends HTMLElement {
 
 	}
 
-	/* defines getter and setter methods for newly created properties, which are 'value' and 'selected'.
-		when they are defined, they work in thwo ways inside a HTMLElement Class, you can either do:
+	/* defines getter and setter methods for attributes and also for properties
+		
+		setting attributes work in two ways inside a HTMLElement Class, you can either do:
 			const component = _select the component here_ 
 			component.value = 'something'
 		or
@@ -64,6 +81,12 @@ export class FcComboBox extends HTMLElement {
 
 		this is just an example, the attributes here mostly won't be used by the final user, the main ideia is to let
 		the parent decides when an option will be selected or not.
+
+		NOTE: that some getters and setters here are not for attributes, for example: set options is designed to set
+		a list of <fc-option> elements inside the shadowDOM without actually doing it by html
+
+		the actual rule is: every attribute of <fc-combobox> should have a getter and setter, but not all getters and setters
+		are used to manipulate the <fc-combobox> attributes.
 	*/
 
 	/* value is a getter only, you cannot set an initial value, you can only do it by typing or clicking on an option
@@ -177,20 +200,19 @@ export class FcComboBox extends HTMLElement {
 		this.inputEl = this.shadowRoot!.getElementById('fc-input') as HTMLInputElement;
 		this.dropdownEl = this.shadowRoot!.getElementById('fc-options') as HTMLElement;
 
-
-		// if the attributes below exists (if it was applied by the user (via js or directly with prop="")), apply the properties
+		/* if the attributes below exists (if it was applied by the user (via js or directly with prop="")), apply the properties
+		to the respective children inside the shadow DOM */
 
 		if (this.hasAttribute('placeholder')) { // applying the placeholder text to the input
 			this.inputEl.placeholder = this.getAttribute('placeholder')!;
 		}
-
 
 		/* if 'name' exists, this component will be considered a form part, so it'll set the form 
 		'value' property: <fc-combobox value="">, do it only once when the component is created
 		*/
 		if (this.hasAttribute('name')) {
 			/* it will be '' if no option is selected on mount (default) (this.value means calling get value()) */
-			this.internals.setFormValue(this.value, this.getAttribute('name')!); 
+			this.internals.setFormValue(this.value); 
 		}
 
 		/* this functions add an input event listener to the input element, whenever the users type anything,
@@ -229,7 +251,7 @@ export class FcComboBox extends HTMLElement {
 		if (name === 'name') {
 			// update the form 'value' property: <fc-combobox value="">
 			// it will be '' if no option is selected on mount (default) (this.value means calling get value())
-			this.internals.setFormValue(this.value, newVal);
+			this.internals.setFormValue(this.value);
 		}
 	}
 	

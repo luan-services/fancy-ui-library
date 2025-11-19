@@ -10,11 +10,15 @@
 	<body>
         <div class="container">
 
-            <fc-combobox placeholder="Search for a country...">
-                <fc-option value="country-1">France</fc-option>
-                <fc-option value="country-2">Japan</fc-option>
-                <fc-option value="country-3">Brazil</fc-option>
-            </fc-combobox>
+            <form>
+                <fc-combobox placeholder="Search for a country..." name="country">
+                    <fc-option value="country-1">France</fc-option>
+                    <fc-option value="country-2">Japan</fc-option>
+                    <fc-option value="country-3">Brazil</fc-option>
+                </fc-combobox>
+                <button type="submit">click</button>
+            </form>
+
             
             <fc-combobox id="cb-fruits"> 
             </fc-combobox>
@@ -23,18 +27,31 @@
 
         <script type="module">
             // imports and register all components in the DOM
+
             import { defineAll } from '../src/index.ts';
 
             defineAll();
 
-            const cbOptions = [
-                { label: 'Apple', value: 'fruit-1' },
-                { label: 'Orange', value: 'fruit-2' },
-                { label: 'Banana', value: 'fruit-3' }
-            ];
+            // ----------------------------
 
             // setting properties for fc-combobox via JS (with shadow DOM, not SEO friendly)
             window.addEventListener('load', () => {
+
+                // adding a listener to test how fc-combobox can be used as form component when 'name' is set
+                                
+                document.querySelector("form").addEventListener("submit", e => {
+                    e.preventDefault();
+                    const data = new FormData(e.target);
+                    console.log([...data.entries()]);
+                });
+
+                // manually adding all data from cbFruits via js
+
+                const cbOptions = [
+                    { label: 'Apple', value: 'fruit-1' },
+                    { label: 'Orange', value: 'fruit-2' },
+                    { label: 'Banana', value: 'fruit-3' }
+                ];
 
                 const cbFruits = document.getElementById('cb-fruits');
                 
@@ -42,14 +59,15 @@
                 cbFruits.setProps({
                     options: cbOptions,
                     placeholder: 'Search for a fruit...',
-                    current: {value: "fruit-1", label: "Apple"}
+                    current: {value: "fruit-1", label: "Apple"} // set a non-existent initial option
                 });
 
-                console.log(cbFruits.options)
+                console.log(cbFruits.options);
 
-                cbFruits.addEventListener("fc-change", e => console.log(e.detail));
-                
+                cbFruits.addEventListener("fc-change", e => console.log(e.detail));             
             });
+
+
         </script>
 	</body>
 </html>
