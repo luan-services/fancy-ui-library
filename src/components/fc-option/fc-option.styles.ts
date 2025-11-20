@@ -9,8 +9,6 @@ export const styles = `
 
 	:host([hidden]) {
         display: none !important;
-		
-        cursor: not-allowed;
     }
 
 	:host([disabled]) {
@@ -41,7 +39,7 @@ export const styles = `
 	button.fc-option:disabled {
 		color: var(--fc-option-disabled-fg);
 		background: var(--fc-option-disabled-bg);
-		pointer-events: none;
+		pointer-events: none; // this prevents disabled attribute on button to move focus out of the fc-combobox
 		box-shadow: none;
 	}
 
