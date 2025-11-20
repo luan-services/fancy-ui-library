@@ -64,6 +64,10 @@ export const styles = `
 		box-shadow: none;
     }
 
+	.fc-input:disabled::placeholder {
+		color: var(--fc-combobox-disabled-placeholder);
+    }
+
 	.fc-input:disabled:hover {
 		border-color: var(--fc-combobox-border);
 	}

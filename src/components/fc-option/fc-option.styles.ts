@@ -32,13 +32,14 @@ export const styles = `
 	}
 
 	button.fc-option:disabled {
-		background: var(--fc-combobox-disabled-bg);
+		color: var(--fc-option-disabled-fg);
+		background: var(--fc-option-disabled-bg);
         cursor: not-allowed;
 		box-shadow: none;
 	}
 
     button.fc-option:disabled:hover {
-		border-color: var(--fc-option-disabled-bg);
+		background: var(--fc-option-disabled-bg);
 	};
 
 	button.fc-option[aria-selected="true"] {

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html fc-theme="light">
+<html fc-theme="dark">
 	<head>
 		<meta charset="UTF-8" />
 		<title>Teste Components</title>
@@ -11,20 +11,23 @@
         <div class="container">
 
             <form>
-                <fc-combobox placeholder="Search for a country..." name="country" disabled="true">
+                <fc-combobox placeholder="Search for a country..." name="country">
                     <fc-option value="country-1">France</fc-option>
                     <fc-option value="country-2">Japan</fc-option>
                     <fc-option value="country-3">Brazil</fc-option>
+                    <fc-option value="country-3" disabled="true">North Korea</fc-option>
                 </fc-combobox>
                 <button type="submit">click</button>
             </form>
+
+            <fc-combobox placeholder="Search for a instrument" name="instrument" disabled="true">
+                <fc-option value="country-1" disabled>Guitar</fc-option>
+            </fc-combobox>
 
             
             <fc-combobox id="cb-fruits"> 
             </fc-combobox>
 
-
-            <fc-option value="country-2">Japan</fc-option>
         </div>
 
         <script type="module">

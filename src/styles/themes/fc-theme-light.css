@@ -1,18 +1,20 @@
 :root[fc-theme="light"] {
-	/* autocomplete component */
+	/* fc-combobox component */
     --fc-combobox-bg: var(--fc-white);
-    --fc-combobox-disabled-bg: var(--fc-gray-100);
+    --fc-combobox-disabled-bg: var(--fc-gray-50);
     --fc-combobox-fg: var(--fc-gray-900);
     --fc-combobox-border: var(--fc-gray-300);
     --fc-combobox-border-hover: var(--fc-gray-400);
     --fc-combobox-border-focus: var(--fc-primary-400);
     --fc-combobox-placeholder: var(--fc-gray-400);
+    --fc-combobox-disabled-placeholder: var(--fc-gray-300);
 	
-    /* option component */
+    /* fc-option component */
     --fc-option-bg: var(--fc-white);
+    --fc-option-disabled-bg: var(--fc-gray-50);
     --fc-option-bg-hover: var(--fc-gray-100);
     --fc-option-bg-selected: var(--fc-primary-100);
-
     --fc-option-fg: var(--fc-gray-900);
+    --fc-option-disabled-fg: var(--fc-gray-300);
     --fc-option-fg-selected: var(--fc-primary-700);
 }

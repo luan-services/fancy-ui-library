@@ -1,5 +1,5 @@
 :root[fc-theme="dark"] {
-	/* autocomplete component */
+	/* fc-combobox component */
 	--fc-combobox-bg: var(--fc-gray-800);
     --fc-combobox-disabled-bg: var(--fc-gray-900);
 	--fc-combobox-fg: var(--fc-gray-200);
@@ -7,13 +7,14 @@
     --fc-combobox-border-hover: var(--fc-gray-400);
     --fc-combobox-border-focus: var(--fc-primary-500);
     --fc-combobox-placeholder: var(--fc-gray-500);
+    --fc-combobox-disabled-placeholder: var(--fc-gray-700);
 	
-	
-    /* option component */
+    /* fc-option component */
 	--fc-option-bg: var(--fc-gray-800);
+    --fc-option-disabled-bg: var(--fc-gray-900);
 	--fc-option-bg-hover: var(--fc-gray-700);
 	--fc-option-bg-selected: var(--fc-primary-800);
-
-	--fc-option-fg: var(--fc-gray-100);
+	--fc-option-fg: var(--fc-gray-200);
+    --fc-option-disabled-fg: var(--fc-gray-700);
 	--fc-option-fg-selected: var(--fc-primary-100);
 }
