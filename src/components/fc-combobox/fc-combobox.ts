@@ -315,6 +315,49 @@ export class FcComboBox extends HTMLElement {
 		document.removeEventListener('click', this.onOutsideClick);
 	}
 
+	/* the callbacks below are exclusive of when using this component as a form component, both are callbacks that
+	runs whenever the user do some form actions */
+
+	/* if there is a button type="reset" on the form, and the user clicks it, this function will be run */
+	formResetCallback() {
+
+		this.optionValue = '';
+		
+		if (this.inputEl) {
+			this.inputEl.value = '';
+		}
+
+		this.internals.setFormValue('');
+
+		const options = Array.from(this.querySelectorAll('fc-option')) as FcOption[];
+		options.forEach(option => {
+			option.selected = false;
+			option.hidden = false;
+		});
+
+		this.toggleDropdown(false);
+	}
+
+	/* this runs whenever the user click on return on the page and them go back to the form page again,
+	it also runs when the user click on the default browser autocomplete (we disabled it) */
+	formStateRestoreCallback(state: string | File | FormData | null, mode: 'restore' | 'autocomplete') {
+		// 'state' is the value the user previously saved setFormValue
+		const restoredValue = state as string;
+
+		if (restoredValue) { // if there was a value, add it again and update the option label
+			this.optionValue = restoredValue;
+			this.internals.setFormValue(restoredValue);
+
+			const options = Array.from(this.querySelectorAll('fc-option')) as FcOption[];
+			const match = options.find(opt => opt.value === restoredValue);
+
+			if (match && this.inputEl) {
+				this.inputEl.value = match.label;
+				match.selected = true;
+			}
+		};
+	}
+
 	/** helper functions for the eventListeners */
 
 	private onInput(e: Event) {
