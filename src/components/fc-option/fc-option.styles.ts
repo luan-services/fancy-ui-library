@@ -36,6 +36,10 @@ export const styles = `
 		background: var(--fc-option-bg-hover);
 	}
 
+	button.fc-option[data-active="true"] { 
+        background: var(--fc-option-bg-hover);
+    }
+
 	button.fc-option:disabled {
 		color: var(--fc-option-disabled-fg);
 		background: var(--fc-option-disabled-bg);

@@ -23,6 +23,17 @@ import { FcOption } from '../fc-option';
 	options (set and get) - used to add <fc-option> elements inside the combobox with js
 */
 
+/* the keyboard navigation in this component is specific for a combobox, if used in a select dropdown component for example, it would need
+to be refactored.
+
+in this case, whenever the user closes the dropdown, it resets the index to -1 and remove active from any option, when selecting an
+option, it also does this, the only way a option not unactived is when the user inputs something (if the dropdown does not close)
+
+this is the simpliest approach for a working combobox, other approaches would be too complicated since it is not as simple as a fc-select,
+for example
+
+*/
+
 export class FcComboBox extends HTMLElement {
 	
 	/* this is a static method that tells the browser which atributes should be 'watched', that means whenever 'name' 
@@ -44,6 +55,9 @@ export class FcComboBox extends HTMLElement {
 
 	// references the current selected option's value
 	private optionValue: string = '';
+
+	// tracks the current index of the active option (for keyboard navgation)
+    private activeIndex: number = -1;
 
 	/* this is the class constructor, whenever you create a new element on js or at the dom, this will be called */
 	constructor() {
@@ -82,6 +96,8 @@ export class FcComboBox extends HTMLElement {
 		/* exclusive function for react see below */
 		this.onSlotChange = this.onSlotChange.bind(this);
 
+		/* bind the keydown function for keyboard navigation */
+        this.onKeyDown = this.onKeyDown.bind(this);
 	}
 
 	/* defines getter and setter methods for attributes and also for properties
@@ -295,6 +311,9 @@ export class FcComboBox extends HTMLElement {
 
 		const slot = this.shadowRoot!.querySelector('slot');
 		slot?.addEventListener('slotchange', this.onSlotChange);
+
+		/* creates the keydown listener to handle keyboard navigation */
+        this.inputEl.addEventListener('keydown', this.onKeyDown);
 			
 	}
 
@@ -457,6 +476,7 @@ export class FcComboBox extends HTMLElement {
 			const selected = (option.value === value); // checks if the selected option is the current option
 			option.selected = selected // if so, set the option as selected by calling set selected from child fc-option, if not, remove selected attribute(query === label)
 			option.hidden = !selected // if so, show the option
+			option.active = false; // now it is needed to remove active status from all options when a option is selected
         });
 
 		this.toggleDropdown(false); // close dropdown
@@ -518,6 +538,101 @@ export class FcComboBox extends HTMLElement {
 		};
 	};
 
+	/* this is the function that runs whenever the press any keyboard key */
+
+	private onKeyDown(e: KeyboardEvent) {
+		// if <fc-combobox> is disabled, return
+        if (this.disabled) {
+			return;
+		}
+
+        const options = this.getVisibleOptions();
+        
+        // if there is no available <fc-option> return
+        if (options.length === 0) {
+			return;
+		}
+
+        if (e.key === 'ArrowDown') {
+            e.preventDefault(); 
+            this.toggleDropdown(true); 
+            
+            // if at end (length - 1), go to 0. else, go next
+            const nextIndex = this.activeIndex >= options.length - 1 ? 0 : this.activeIndex + 1;
+            this.setActiveOption(nextIndex, options);
+        } 
+        else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            this.toggleDropdown(true);
+
+            // if at start (0) or no selection (-1), go to end. else, go prev
+            const prevIndex = this.activeIndex <= 0 ? options.length - 1 : this.activeIndex - 1;
+            this.setActiveOption(prevIndex, options);
+        } 
+        else if (e.key === 'Enter') {
+            e.preventDefault(); 
+            
+            if (this.activeIndex > -1 && options[this.activeIndex]) {
+                const target = options[this.activeIndex];
+                this.selectOption(target);
+            }
+        } 
+        else if (e.key === 'Escape') {
+            e.preventDefault();
+            this.toggleDropdown(false);
+        }
+        else if (e.key === 'Tab') {
+            this.toggleDropdown(false);
+        }
+    }
+
+    /* this is a helper to set the active option on onKeyDown method */
+    private setActiveOption(index: number, visibleOptions: FcOption[]) {
+        // Remove active from all
+        this.querySelectorAll('fc-option').forEach(opt => (opt as FcOption).active = false);
+
+        this.activeIndex = index;
+        const target = visibleOptions[index];
+        
+        if (target) {
+            target.active = true;
+            target.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        }
+    }
+
+    /* this is a helper to get all valid options on onKeyDown method */
+    private getVisibleOptions(): FcOption[] {
+        return Array.from(this.querySelectorAll('fc-option')).filter(
+			opt => !(opt as FcOption).hidden && !(opt as FcOption).disabled) as FcOption[];
+    }
+
+    /* this is a helper to select the active option on onKeyDown method */
+    private selectOption(option: FcOption) {
+        const value = option.value;
+        const label = option.label;
+
+        this.inputEl.value = label;
+        this.optionValue = value;
+        this.internals.setFormValue(value);
+
+        const allOptions = Array.from(this.querySelectorAll('fc-option')) as FcOption[];
+        allOptions.forEach((opt) => {
+            const selected = (opt.value === value);
+            opt.selected = selected;
+            opt.hidden = !selected;
+            opt.active = false; // clear active state on select
+        });
+
+        this.toggleDropdown(false);
+
+        this.dispatchEvent(
+            new CustomEvent('fc-change', {
+                detail: { value, label },
+                bubbles: true, composed: true,
+            })
+        );
+    }
+
 	private toggleDropdown(show: boolean) {
 		if (!this.dropdownEl) {
 			return;
@@ -540,6 +655,10 @@ export class FcComboBox extends HTMLElement {
 		this.dropdownEl.hidden = true;
 		this.removeAttribute('open');
 		this.inputEl.setAttribute("aria-expanded", "false");
+
+		// reset active option and index when closing
+        this.activeIndex = -1;
+        this.querySelectorAll('fc-option').forEach(opt => (opt as FcOption).active = false);
 
 	}
 	

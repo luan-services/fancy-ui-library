@@ -6,7 +6,7 @@ export class FcOption extends HTMLElement {
 	/* this is a static method that tells the browser which atributes should be 'watched', that means
 	whenever 'value' or 'selected' changes, 'attributeChangedCallback' will be called. */
 	static get observedAttributes() { 
-		return ['value', 'label', 'selected', 'disabled'];
+		return ['value', 'label', 'selected', 'disabled', 'active'];
 	}
 
 	/* this is the class constructor, whenever you create a new element on js or at the dom, this will be called */
@@ -80,6 +80,18 @@ export class FcOption extends HTMLElement {
 		this.removeAttribute('disabled');
 	}
 
+	public get active() {
+        return this.hasAttribute('active');
+    }
+
+    public set active(isActive: boolean) {
+        if (isActive) {
+            this.setAttribute('active', 'true');
+            return;
+        }
+        this.removeAttribute('active');
+    }
+
 	/* this is the function that will be called when the element is inserted in the DOM */
 
 	connectedCallback() {
@@ -121,10 +133,22 @@ export class FcOption extends HTMLElement {
 			if (btn) {
 				const isDisabled = this.hasAttribute('disabled');
 				btn.disabled = isDisabled;
-				// Aria-disabled is needed because role="option" can override native button semantics
+				// aria-disabled is needed because role="option" can override native button semantics
 				btn.setAttribute('aria-disabled', isDisabled.toString());
 			};
 		}
+
+		// 'active' status is when the button is selected via arrow keys, we need a data-active attribute to change the button css
+		if (name === 'active') {
+			const btn = this.shadowRoot?.querySelector('button');
+			if (btn) {
+				if(this.active) {
+					btn.setAttribute('data-active', 'true');
+					return;
+				}
+				btn.removeAttribute('data-active');
+			}
+        }
 	}
 
 	private onClick(e: Event) {
