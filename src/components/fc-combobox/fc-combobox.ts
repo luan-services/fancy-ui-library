@@ -36,13 +36,14 @@ export class FcComboBox extends HTMLElement {
 	*/
 	private inputEl!: HTMLInputElement;
 	private dropdownEl!: HTMLElement;
-	private optionValue: string = ''; // references the current selected option value
 	
 	// this signals the browser this custom element (<fc-combobox>) should participate in forms, allowing its value to be submitted along with the form data.
 	static formAssociated = true; 
 	// this is an reference that provides methods and properties for custom elements to access form control features
 	private internals: ElementInternals;
 
+	// references the current selected option's value
+	private optionValue: string = '';
 
 	/* this is the class constructor, whenever you create a new element on js or at the dom, this will be called */
 	constructor() {
@@ -387,7 +388,8 @@ export class FcComboBox extends HTMLElement {
 		const options = Array.from(this.querySelectorAll('fc-option')) as FcOption[];
 
 		let hasMatch = false;
-		let matchExactlyValue = ''; // attribute to store the value of an option if the option matches exactly the query
+
+		let finalValue = ''; // attribute to store the value of an option if the option matches exactly the query
 
 		options.forEach((option) => { 
 			const rawLabel = (option.getAttribute('label') || option.textContent || '');
@@ -403,23 +405,27 @@ export class FcComboBox extends HTMLElement {
 			const matchExactly = (rawQuery === rawLabel && query.length > 0); // checks if the query is exactly the option
 
 			if (matchExactly && !option.disabled) { // if match exactly, set the option as selected, if not, remove selected attribute (query === label)
-				matchExactlyValue = option.value;
-				option.selected = true; // do not set as selected anymore, just update the form value below.
+				finalValue = option.value;
+				option.selected = true; // auto select the option
 				return;
 			}
 
 			option.selected = false;
 		});
-		
-		// here, update only de form value
-		this.optionValue = matchExactlyValue; // updates the value property of <fc-combobox>
-		this.internals.setFormValue(matchExactlyValue); // also update the form 'value' property: <fc-combobox value="">
+
+		if (finalValue == '') { // guarantees the final value to be the user input if there is no matching value
+			finalValue = rawQuery
+		};
+
+		this.optionValue = finalValue; // updates the value property of <fc-combobox>
+		this.internals.setFormValue(finalValue); // also update the form 'value' property: <fc-combobox value="">
+
 
 		this.dispatchEvent( // dispatch a new event for anything outside listen saying that the values are changed (to work with frameworks)
 			new CustomEvent('fc-change', 
 			{
 				detail: { 
-					value: matchExactlyValue, 
+					value: finalValue, 
 					label: rawQuery
 				},
 				bubbles: true,
