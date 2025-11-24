@@ -16,7 +16,8 @@ template.innerHTML = `
 		role="combobox"
 		aria-autocomplete="list"
 		aria-expanded="false"
-		aria-owns="fc-options"
+		aria-haspopup="listbox"
+		aria-controls="fc-options"
 		part="input"
 		autocomplete="off"
 	/>
@@ -25,6 +26,7 @@ template.innerHTML = `
 		id="fc-options" 
 		part="options" 
 		class="fc-options" 
+		role="listbox"
 		hidden
 	>
 		<slot></slot>

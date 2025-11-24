@@ -37,7 +37,7 @@ export const styles = `
 	}
 
 	button.fc-option[data-active="true"] { 
-        background: var(--fc-option-bg-hover);
+        background: var(--fc-option-bg-active);
     }
 
 	button.fc-option:disabled {

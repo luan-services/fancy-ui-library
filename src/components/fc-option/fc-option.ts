@@ -96,6 +96,12 @@ export class FcOption extends HTMLElement {
 
 	connectedCallback() {
 
+		/* <fc-option> must have an unique ID for the aria-activedescendant of any parent to work, if no id is provided by the user,
+		generates a random one */
+		if (!this.id) {
+			this.id = `fc-opt-${Math.random().toString(36).substring(2, 11)}`;
+		}
+
 		const btn = this.shadowRoot!.querySelector('button')!;
 
 		if (this.disabled && btn) { // apply initial disabled state to option when creating the element

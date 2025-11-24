@@ -59,6 +59,16 @@
 	--fc-shadow-md: 0 4px 6px rgb(0 0 0 / 0.1);
 	--fc-shadow-lg: 0 10px 15px rgb(0 0 0 / 0.15);
 
+	/* outline ring */
+
+	--focus-ring-none: none;
+	--fc-focus-ring-sm: 0 0 0 3px;
+	--fc-focus-ring-md: 0 0 0 4px;
+	--fc-focus-ring-lg: 0 0 0 6px;
+	
+	--fc-focus-ring-primary: rgba(59, 130, 246, 0.35);
+	--fc-focus-ring-secondary: rgba(59, 130, 246, 0.6);
+
 	/* typography */
 	--fc-font-size-sm: 12px;
 	--fc-font-size-md: 14px;

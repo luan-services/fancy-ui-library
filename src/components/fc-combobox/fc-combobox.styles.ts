@@ -36,6 +36,7 @@ export const styles = `
 	.fc-input:focus {
 		border-color: var(--fc-combobox-border-focus);
 		outline: none;
+		box-shadow: var(--fc-combobox-focus-ring);
 	}
 
 	.fc-options {

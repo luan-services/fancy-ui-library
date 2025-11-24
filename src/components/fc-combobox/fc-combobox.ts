@@ -411,10 +411,13 @@ export class FcComboBox extends HTMLElement {
 			options.forEach(opt => {
 				opt.hidden = false;
 				opt.selected = false;
+				opt.active = false;
 			});
+
 
 			this.optionValue = '';
 			this.internals.setFormValue(''); 
+			this.inputEl.removeAttribute('aria-activedescendant');
 			this.toggleDropdown(true);
 			return; 
 		}
@@ -609,8 +612,13 @@ export class FcComboBox extends HTMLElement {
         
         if (target) {
             target.active = true;
+			this.inputEl.setAttribute('aria-activedescendant', target.id); // adding active descendant attribute for screen readers 
             target.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+			return;
         }
+
+		// if no target, clear the attribute
+        this.inputEl.removeAttribute('aria-activedescendant');
     }
 
     /* this is a helper to get all valid options on onKeyDown method */
@@ -672,6 +680,8 @@ export class FcComboBox extends HTMLElement {
 		// reset active option and index when closing
         this.activeIndex = -1;
         this.querySelectorAll('fc-option').forEach(opt => (opt as FcOption).active = false);
+		// remove the active option id from aria-activedescendant attribute
+		this.inputEl.removeAttribute('aria-activedescendant');
 
 	}
 	

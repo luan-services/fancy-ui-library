@@ -11,6 +11,7 @@
     --fc-combobox-border-focus: var(--fc-primary-400);
     --fc-combobox-placeholder: var(--fc-gray-400);
     --fc-combobox-disabled-placeholder: var(--fc-gray-300);
+    --fc-combobox-focus-ring: var(--fc-focus-ring-sm) var(--fc-focus-ring-primary);
 
     --fc-combobox-max-width: 412px;
     --fc-combobox-padding: var(--fc-space-3);
@@ -20,11 +21,12 @@
 
     /* fc-option component */
     --fc-option-bg: var(--fc-white);
-    --fc-option-disabled-bg: var(--fc-gray-200);
+    --fc-option-disabled-bg: var(--fc-gray-50);
     --fc-option-bg-hover: var(--fc-gray-100);
-    --fc-option-bg-selected: var(--fc-primary-100);
+    --fc-option-bg-selected: var(--fc-primary-200);
+    --fc-option-bg-active: var(--fc-primary-100);
     --fc-option-fg: var(--fc-gray-900);
-    --fc-option-disabled-fg: var(--fc-gray-400);
+    --fc-option-disabled-fg: var(--fc-gray-300);
     --fc-option-fg-selected: var(--fc-primary-700);
     --fc-option-padding: var(--fc-space-3);
     --fc-option-radius: var(--fc-radius-md);
