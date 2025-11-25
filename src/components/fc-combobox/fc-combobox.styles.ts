@@ -44,7 +44,7 @@ export const styles = `
 		top: calc(100% + 4px);
 		left: 0;
 		right: 0;
-		z-index: 10;
+		z-index: 1000;
 		background: var(--fc-combobox-dropdown-bg, var(--fc-combobox-bg));
 		border: var(--fc-combobox-border-width) solid var(--fc-combobox-border);
 		border-radius: var(--fc-combobox-dropdown-radius, var(--fc-combobox-radius));

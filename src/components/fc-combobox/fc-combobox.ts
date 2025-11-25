@@ -183,6 +183,14 @@ export class FcComboBox extends HTMLElement {
 
 		this.toggleDropdown(false);
 		
+		/*
+
+		Native elements never fire change or input events when you set their properties via JavaScript. 
+		They only fire when the User interacts (types, clicks, pastes).
+		If a developer writes element.value = "X", they already know the value has changed—because they just changed it.
+		Native elements never fire change or input events when you set their properties via JavaScript. They only 
+		fire when the User interacts (types, clicks, pastes).
+
 		this.dispatchEvent(
 			new CustomEvent('fc-change', {
 				detail: { 
@@ -192,7 +200,7 @@ export class FcComboBox extends HTMLElement {
 				bubbles: true,
 				composed: true,
 			})
-		);
+		); */
 	}
 
 	public get options() {
@@ -419,6 +427,19 @@ export class FcComboBox extends HTMLElement {
 			this.internals.setFormValue(''); 
 			this.inputEl.removeAttribute('aria-activedescendant');
 			this.toggleDropdown(true);
+
+			this.dispatchEvent( // dispatch a new event for anything outside listen saying that the values are changed (to work with frameworks)
+				new CustomEvent('fc-change', 
+				{
+					detail: { 
+						value: rawQuery, 
+						label: rawQuery
+					},
+					bubbles: true,
+					composed: true,
+				}
+			));
+
 			return; 
 		}
 
