@@ -6,13 +6,25 @@
   "main": "dist/index.js",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
+  "style": "dist/index.css", 
+  "sideEffects": [
+    "./src/styles/index.ts",
+    "**/*.css"
+  ],
   "files": [
     "dist"
   ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./styles.css": "./dist/index.css"
+  },
   "scripts": {
     "dev": "vite",
-    "build": "tsup src/index.ts --format esm --dts",
-    "build:watch": "tsup src/index.ts --format esm --dts --watch"
+    "build": "tsup", 
+    "build:watch": "tsup --watch"
   },
   "author": "Luan Peixoto",
   "license": "MIT",
