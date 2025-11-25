@@ -11,12 +11,12 @@
         <div class="container">
 
             <form>
-                <fc-combobox placeholder="Search for a country..." name="country">
+                <fc-combobox value="country-1" placeholder="Search for a country..." name="country"> <!-- setting value here will create an attribute 'value' -->
                     <fc-option value="country-1">France</fc-option>
                     <fc-option value="country-2">Japan</fc-option>
                     
-                    <fc-option value="country-4" disabled="true">North Korea</fc-option>
-                    <fc-option value="country-3">Brazil</fc-option>
+                    <fc-option value="country-3" disabled="true">North Korea</fc-option>
+                    <fc-option value="country-4">Brazil</fc-option>
                 </fc-combobox>
                 <button type="submit">click</button>
             </form>
@@ -65,11 +65,9 @@
                 // acFruits.options = acOptions
                 cbFruits.setProps({
                     options: cbOptions,
-                    placeholder: 'Search for a fruit...',
-                    current: {value: "fruit-1", label: "Apple"} // set a non-existent initial option
+                    placeholder: 'Search for a fruit...', // calling placeholder here will create an placeholder attribute because our SETTER does this
+                    value: 'fruit-82' // calling value here will just set the initial value, it won't create an attribute value
                 });
-
-                console.log(cbFruits.options);
 
                 cbFruits.addEventListener("fc-change", e => console.log(e.detail));             
             });

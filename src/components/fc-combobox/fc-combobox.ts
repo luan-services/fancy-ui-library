@@ -1,21 +1,26 @@
 import { template } from './fc-combobox.template';
 import { FcOption } from '../fc-option';
-// v1.0.0
+// v1.0.1
 
+/* in this component, the properties 'label' doesn't exist as an ACTUAL attribute:
 
-/* in this component, the properties 'label' and 'value' doesn't exist as ACTUAL attributes:
-
-	VALUE is a mirror from the 'value' attribute of CHILD fc-option element
 	LABEL is a plain text that can be either typed and will be set as 'label' attribute of this component's CHILD input, or
 	it can be selected from an option and will be a mirror from the 'label' attribute of the CHILD fc-option
 
-	placeholder - an actual attribute of <fc-combobox>
-	name - an actual attribute of <fc-combobox> (used to define the element as part of a form if wanted to)
+	placeholder - an actual custom attribute of <fc-combobox>, calling its setters will create an attribute on the main component
 
-	value - as said above, it is a mirror, but it also will be the formElement value
-	label - as said above, another mirror
+	name - an actual attribute of <fc-combobox> (used to define the element as part of a form if wanted to), calling its setters will create an attribute on the main component
 
-	hidden - is a built-in attribute for any HTMLElement, you don't need to set it, you just can call this.hidden = true/false
+	value - it is a mirror from the 'value' attribute of CHILD fc-option element, but it is not set as an attribute itself, you can use
+	it to set an INITIAL optionValue, but any changes on the current selected value is stored on private optionValue property
+
+	you can do <fc-combobox value="country-1"/> tho, thanks to it being an observedAttribute, if you do this, attributeChangecallback
+	wil run and call FcCombobox.value setter.
+
+	label - as said above, it is a mirror from this.inputEl label, it has no setter.
+
+	hidden - is a built-in attribute for any HTMLElement, you don't need to getters and setters for it, you just can call 
+	this.hidden = true/false
 
 	disabled - on <fc-combobox> it is an actual custom attribute, because not every HTMLElement has disabled built it, but
 	we also set inputEl.disabled = true -> here disabled is built-in, because every Input has 'disabled' by default
@@ -34,12 +39,34 @@ for example
 
 */
 
+/* about value:
+value setter here is used to let the FcCombobox to be 'controlled' on react. In react, on a commom component, like input, when you do:
+<input value={state} onChange={...} />
+
+it is not actually setting an attribute 'value', react will CALL input.value setter, that's how react do it with the @lit library,
+it won't ever set any attribute, it just call the setter.
+
+so, you can do:
+
+<FcCombobox value={useState} onFcChange={(e)=>{}}/>
+
+the briliant part: some setters, like set placeholder, actually creates an attribute with the name passed, so even on react if you do 
+placeholder="a", it will do fc-combobox.placeholder = 'a'. and the internal logic will correctly add a placeholder attribute.
+these are called reflecting properties, they sinchronize attributes.
+
+'value' is a non-reflecting property, its setter does not create a 'value' attribute.
+
+on the other hand, on vanilla, any attribute added, by doing <fc-combobox placeholder="a"/> will be an set as an actual attribute,
+and if it is an observed attribute, attributeChangecallback will be called, and it might do something
+
+*/
+
 export class FcComboBox extends HTMLElement {
 	
 	/* this is a static method that tells the browser which atributes should be 'watched', that means whenever 'name' 
 	or 'placeholder' attributes are set by the user like <fc-combobox name="a">, 'attributeChangedCallback' will be called. */
 	static get observedAttributes() {
-		return ['placeholder', 'name', 'disabled'];
+		return ['placeholder', 'name', 'value', 'disabled'];
 	}
 
 	/* these are declared attributes, that later on will receive both elements from the shadowRoot with 
@@ -147,60 +174,46 @@ export class FcComboBox extends HTMLElement {
 		this.removeAttribute('disabled');
 	}
 
-	/* value is a getter only, you cannot set an initial value, you can only do it by typing or clicking on an option
+	/* value must also have a setter to work on react, it'll reflect the options value, an invalid value can also be passed
 	*/
 	public get value() {
 		return this.optionValue;
 	}
 
+	public set value(newValue: string) {
+        // prevent infinite loops if the value is the same
+        if (this.optionValue === newValue) {
+			return;
+		}
+
+        this.optionValue = newValue;
+        this.internals.setFormValue(newValue);
+
+		if (!this.inputEl) { // prevents crash if inputEl does not exist yet
+			return;
+		}
+
+        // sync the UI (find the option and select it)
+        const options = Array.from(this.querySelectorAll('fc-option')) as FcOption[];
+
+		options.forEach((option) => {
+			const selected = (option.value === newValue); // checks if the selected option is the current option
+			option.selected = selected // if so, set the option as selected by calling set selected from child fc-option, if not, remove selected attribute(query === label)
+			option.hidden = !selected // if so, show the option
+			option.active = false; // now it is needed to remove active status from all options when a option is selected
+
+			if (selected) {
+            	this.inputEl.value = option.label;
+        	}
+        });
+
+		if (this.inputEl.value === '') {
+			this.inputEl.value = newValue;
+		};
+    }
+
 	public get label() {
 		return this.inputEl?.value ?? '';
-	}
-
-	/* value and label must coexist together, so it needs only one setter that sets both
-	*/
-	public set current(data: {value: string, label: string}) {
-		if (!data || !data.label || !data.value) {
-			return;
-		}
-
-		if (!this.inputEl) {
-			requestAnimationFrame(() => (this.current = data));
-			return;
-		}
-
-		this.inputEl.value = data.label;
-		this.optionValue = data.value;
-		this.internals.setFormValue(data.value); // update the form 'value' property: <fc-combobox value=""> to our selected value
-		
-		const options = Array.from(this.querySelectorAll('fc-option')) as FcOption[];
-
-		options.forEach(option => {
-			const isSelected = option.value === data.value;
-			option.selected = isSelected;
-			option.hidden = !isSelected;
-		});
-
-		this.toggleDropdown(false);
-		
-		/*
-
-		Native elements never fire change or input events when you set their properties via JavaScript. 
-		They only fire when the User interacts (types, clicks, pastes).
-		If a developer writes element.value = "X", they already know the value has changed—because they just changed it.
-		Native elements never fire change or input events when you set their properties via JavaScript. They only 
-		fire when the User interacts (types, clicks, pastes).
-
-		this.dispatchEvent(
-			new CustomEvent('fc-change', {
-				detail: { 
-					value: data.value, 
-					label: data.label 
-				},
-				bubbles: true,
-				composed: true,
-			})
-		); */
 	}
 
 	public get options() {
@@ -341,6 +354,11 @@ export class FcComboBox extends HTMLElement {
 			// it will be '' if no option is selected on mount (default) (this.value means calling get value())
 			this.internals.setFormValue(this.value);
 		}
+
+		if (name === 'value') {
+            // when user writes <fc-combobox value="x">, we call our JS setter
+            this.value = newVal; 
+        }
 
 		if (name === 'disabled' && this.inputEl) {
 			const isDisabled = this.hasAttribute('disabled');
@@ -564,14 +582,23 @@ export class FcComboBox extends HTMLElement {
 	// specif function for react to ensure <fc-combobox> value property will be correctly added to the <fc-option> that was added later
 	private onSlotChange() {
 		if (this.optionValue && !this.inputEl.value) { // if we have a value set on the parent, but no label text yet
+
 			const options = Array.from(this.querySelectorAll('fc-option')) as FcOption[];
-			const match = options.find(o => o.value === this.optionValue);
 			
-			// select it
-			if (match) {
-				this.inputEl.value = match.label;
-				match.selected = true;
-			}
+			options.forEach((option) => {
+				const selected = (option.value === this.optionValue); // checks if the selected option is the current option
+				option.selected = selected // if so, set the option as selected by calling set selected from child fc-option, if not, remove selected attribute(query === label)
+				option.hidden = !selected // if so, show the option
+				option.active = false; // now it is needed to remove active status from all options when a option is selected
+
+				if (selected) {
+					this.inputEl.value = option.label;
+				}
+			});
+
+			if (this.inputEl.value === '') {
+				this.inputEl.value = this.optionValue;
+			};
 		};
 	};
 
