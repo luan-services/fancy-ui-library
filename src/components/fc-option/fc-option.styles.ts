@@ -27,13 +27,13 @@ export const styles = `
 		border: none;
 		font: inherit;
 		cursor: pointer;
-		transition: background 0.15s ease-in-out, color 0.15s ease-in-out;
 		overflow: hidden;
 		text-overflow: ellipsis;
 	}
 
 	button.fc-option:hover {
 		background: var(--fc-option-bg-hover);
+		transition: background 0.15s ease-in-out, color 0.15s ease-in-out;
 	}
 
 	button.fc-option[data-active="true"] { 

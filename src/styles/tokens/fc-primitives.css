@@ -41,10 +41,10 @@
 	--fc-space-6: 24px;
 
 	/* radius */
-	--fc-radius-xs: 2px;
-	--fc-radius-sm: 4px;
-	--fc-radius-md: 6px;
-	--fc-radius-lg: 8px;
+	--fc-radius-xs: 4px;
+	--fc-radius-sm: 6px;
+	--fc-radius-md: 8px;
+	--fc-radius-lg: 10px;
 	--fc-radius-xl: 12px;
 
 	/* border */

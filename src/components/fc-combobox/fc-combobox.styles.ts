@@ -41,7 +41,7 @@ export const styles = `
 
 	.fc-options {
 		position: absolute;
-		top: calc(100% + 4px);
+		top: calc(100% + 6px);
 		left: 0;
 		right: 0;
 		z-index: 1000;
@@ -53,7 +53,14 @@ export const styles = `
 		max-height: var(--fc-combobox-dropdown-max-height, 240px);
 		overflow-y: auto;
 		box-sizing: border-box;
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
 	}
+	
+	.fc-options[hidden] {
+        display: none !important;
+    }
 
 	:host([disabled]) {
         cursor: not-allowed;
