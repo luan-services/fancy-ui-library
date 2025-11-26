@@ -1,10 +1,10 @@
-import { FcComboBox } from "./fc-combobox";
+import { FcCombobox } from "./fc-combobox";
 
-export { FcComboBox };
+export { FcCombobox };
 
-export const defineComboBox = () => {
-  if (!customElements.get("fc-combobox")) {
-    customElements.define("fc-combobox", FcComboBox);
-  }
-  return FcComboBox;
+export const defineCombobox = () => {
+	if (!customElements.get("fc-combobox")) {
+		customElements.define("fc-combobox", FcCombobox);
+	}
+	return FcCombobox;
 };

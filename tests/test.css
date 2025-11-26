@@ -8,6 +8,7 @@
 
 :root[fc-theme="dark"] {
     background-color:  #27272a;
+    color: #b5b5b5;
     
     .container {
         background-color:  #18181b;
@@ -24,6 +25,14 @@
     border-radius: 8px;
     padding: 16px;
 
+}
+
+.h1 {
+    text-align: center;
+}
+
+.h2 {
+    margin: 4px;
 }
 
 /* custom css to test components */

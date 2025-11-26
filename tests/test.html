@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html fc-theme="light">
+<html fc-theme="dark">
 	<head>
 		<meta charset="UTF-8" />
 		<title>Teste Components</title>
@@ -8,9 +8,11 @@
 		<link rel="stylesheet" type="text/css" href="test.css">
 	</head>
 	<body>
+        <h1 class="h1">Fancy UI HTML Test Sheet</h1>
         <div class="container">
+            <h2 class="h2">FC-Combobox:</h2>
 
-            <form>
+            <form style="display: flex; gap: 16px; align-items: center;">
                 <fc-combobox value="country-1" placeholder="Search for a country..." name="country"> <!-- setting value here will create an attribute 'value' -->
                     <fc-option value="country-1">France</fc-option>
                     <fc-option value="country-2">Japan</fc-option>

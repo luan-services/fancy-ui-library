@@ -61,7 +61,7 @@ and if it is an observed attribute, attributeChangecallback will be called, and 
 
 */
 
-export class FcComboBox extends HTMLElement {
+export class FcCombobox extends HTMLElement {
 	
 	/* this is a static method that tells the browser which atributes should be 'watched', that means whenever 'name' 
 	or 'placeholder' attributes are set by the user like <fc-combobox name="a">, 'attributeChangedCallback' will be called. */
