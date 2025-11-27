@@ -30,7 +30,17 @@
 	/* semantic primitive colors */
 	--fc-success-500: #16a34a;
 	--fc-warning-500: #d97706;
-	--fc-danger-500:  #dc2626;
+	
+	--fc-danger-50:  #fef2f2;
+	--fc-danger-100: #fee2e2; 
+	--fc-danger-200: #fecaca;
+	--fc-danger-300: #fca5a5; 
+	--fc-danger-400: #ef4444; 
+	--fc-danger-500: #dc2626; 
+	--fc-danger-600: #b91c1c; 
+	--fc-danger-700: #991b1b; 
+	--fc-danger-800: #7f1d1d; 
+	--fc-danger-900: #450a0a; 
 
 	/* spacing scale */
 	--fc-space-1: 4px;
@@ -68,6 +78,9 @@
 	
 	--fc-focus-ring-primary: rgba(59, 130, 246, 0.35);
 	--fc-focus-ring-secondary: rgba(59, 130, 246, 0.6);
+	--fc-focus-ring-danger: rgba(239, 68, 68, 0.5); 
+	--fc-focus-ring-danger-secondary: rgba(239, 68, 68, 0.6);
+	--fc-focus-ring-gray: rgba(107, 114, 128, 0.35);
 
 	/* typography */
 	--fc-font-size-sm: 12px;

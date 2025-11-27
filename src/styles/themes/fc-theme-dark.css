@@ -19,4 +19,24 @@
 	--fc-option-fg: var(--fc-gray-200);
     --fc-option-disabled-fg: var(--fc-gray-700);
 	--fc-option-fg-selected: var(--fc-primary-50);
+
+    /* fc-input component */
+    --fc-input-bg: var(--fc-gray-800);
+    --fc-input-disabled-bg: var(--fc-gray-900);
+    --fc-input-fg: var(--fc-gray-200);
+    --fc-input-border: var(--fc-gray-700);
+    --fc-input-border-hover: var(--fc-gray-500);
+    --fc-input-border-focus: var(--fc-primary-400);
+    --fc-input-placeholder: var(--fc-gray-500);
+    --fc-input-disabled-placeholder: var(--fc-gray-700);
+    --fc-input-focus-ring: var(--fc-focus-ring-sm) var(--fc-focus-ring-secondary);
+    --fc-input-error-bg: var(--fc-danger-900);
+	--fc-input-error-color: var(--fc-danger-700);
+    --fc-input-error-focus-ring: var(--fc-focus-ring-danger-secondary);
+
+    --fc-input-max-width: 412px;
+    --fc-input-padding: var(--fc-space-3);
+    --fc-input-border-width: var(--fc-border-width-xs);
+    --fc-input-radius: var(--fc-radius-md);
+    --fc-input-shadow: var(--fc-shadow-none);
 }
