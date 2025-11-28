@@ -78,6 +78,11 @@ export class FcInput extends HTMLElement {
 	*/
 	private inputEl!: HTMLInputElement;
 
+    /* these are references to the password toggle button and their icons, only available on type="password" */
+    private passwordBtnEl!: HTMLButtonElement;
+	private fcPassEnableIcon!: SVGElement;
+	private fcPassDisableIcon!: SVGElement;
+
     /* this will store the <fc-input> value when calling the setter, for react compatibility */
     private _value: string = '';
 	
@@ -102,9 +107,12 @@ export class FcInput extends HTMLElement {
 		this.onInput = this.onInput.bind(this);
 		this.onChange = this.onChange.bind(this);
 
-        /* this is a listener to set 'touched' attribute to this element and to inputEl on blur, so the CSS invalid properties
-        will start working*/
+        /* this bind the onBlur function to this context, it is used to set 'touched' attribute to this element and to inputEl 
+        on blur, so the CSS invalid properties will start working*/
 		this.onBlur = this.onBlur.bind(this);
+
+        /* this bind the onTogglePassword function to this context, it is used to toggle the password icon */
+		this.onTogglePassword = this.onTogglePassword.bind(this);
 	}
 
 	/* this is the public validity API (getters), <form> elements automatically know when their children are
@@ -310,11 +318,23 @@ export class FcInput extends HTMLElement {
 	connectedCallback() {
         /* first of all, search for the elements inside the component and bind it to the respective property */
 		this.inputEl = this.shadowRoot!.getElementById('fc-field') as HTMLInputElement;
+        this.passwordBtnEl = this.shadowRoot!.getElementById('btn-show-pass') as HTMLButtonElement;
+		this.fcPassEnableIcon = this.shadowRoot!.querySelector('.icon-eye') as SVGElement;
+		this.fcPassDisableIcon = this.shadowRoot!.querySelector('.icon-eye-off') as SVGElement;
 
         /* if the user did <fc-input type=""> and type is valid, set it on inputEl, else set as type="text" */
 		if (this.hasAttribute('type')) { 
             const type = this.getAttribute('type')!
             this.ALLOWED_TYPES.includes(type) ? this.inputEl.type = type : this.inputEl.type = 'text';
+            if (this.passwordBtnEl) { // NEW
+                if (type === 'password') {
+                    this.passwordBtnEl.hidden = false;
+                    // Reset to 'password' state (hidden characters) whenever type attribute changes back to password
+                    this.updateToggleIcon(false);
+                } else {
+                    this.passwordBtnEl.hidden = true;
+                }
+            }
         }
 
 		/* sync native inputEl boolean attributes */
@@ -387,11 +407,14 @@ export class FcInput extends HTMLElement {
 			this.internals.setFormValue(this._value);
 		}
 
-        /*  adding event listeners to the child inputEl so we can emit CustomEvents*/
+        /*  adding event listeners to the child inputEl so we can emit CustomEvents */
 		this.inputEl.addEventListener('input', this.onInput);
 		this.inputEl.addEventListener('change', this.onChange);
 
 		this.inputEl.addEventListener('blur', this.onBlur);
+
+        /*  adding click event listener to the password button, so it can run this function on click */
+		this.passwordBtnEl.addEventListener('click', this.onTogglePassword);
 	}
 
 	/* this is the cleaning up function, it'll be called when the element is REMOVED from the DOM, here, we want
@@ -439,11 +462,17 @@ export class FcInput extends HTMLElement {
 
 			case 'type': 
                 const type = this.getAttribute('type')!
-                if (this.ALLOWED_TYPES.includes(type)) {
-                    this.inputEl.type = type;
-                    break;
+                this.ALLOWED_TYPES.includes(type) ? this.inputEl.type = type : this.inputEl.type = 'text';
+                if (this.passwordBtnEl) {
+                    if (type === 'password') {
+                        this.passwordBtnEl.hidden = false;
+                        // Reset to 'password' state (hidden characters) whenever type attribute changes back to password
+                        this.updateToggleIcon(false);
+                    } else {
+                        this.passwordBtnEl.hidden = true;
+                    }
                 }
-                this.inputEl.type = 'text';
+                
                 break;
 
 			case 'disabled':
@@ -497,26 +526,6 @@ export class FcInput extends HTMLElement {
 		}
 	}
 
-	private syncValidity() {
-		if (!this.inputEl) {
-            return;
-        }
-
-		// first check native inputEl validity
-		if (this.inputEl.validity.valid) { // if is valid, <fc-input> is valid
-			this.internals.setValidity({});
-		} 
-        else {
-			this.internals.setValidity(
-				this.inputEl.validity, 
-				this.inputEl.validationMessage, 
-				this.inputEl
-		    );
-		}
-
-        // later here we can set custom validators to set <fc-input> validity directly (a second layer of validation)
-	}
-
 	/* the callbacks below are exclusive of when using this component as a form component, both are callbacks that
 	runs whenever the user do some form actions */
 
@@ -555,7 +564,7 @@ export class FcInput extends HTMLElement {
 		}
 	}
 
-	/** helper functions for the eventListeners */
+	/** functions that run by eventListeners */
 
 	private onInput(e: Event) {
 		const value = (e.target as HTMLInputElement).value;
@@ -598,6 +607,59 @@ export class FcInput extends HTMLElement {
 		// mark as touched when leaving the input
 		this.setAttribute('touched', '');
 	}
+
+    /* helper functions */
+
+    private onTogglePassword(e: MouseEvent) {
+		e.preventDefault(); // prevent focus loss or form submit
+        
+		// if current inner state is password, switch to text (show)
+		if (this.inputEl.type === 'password') {
+			this.inputEl.type = 'text';
+			this.updateToggleIcon(true);
+            this.passwordBtnEl.setAttribute('aria-pressed', 'true');
+            return;
+		} 
+        
+        // if it is text, hide (prevent other types to show/hide)
+        if (this.inputEl.type === 'text') {
+			this.inputEl.type = 'password';
+			this.updateToggleIcon(false);
+            this.passwordBtnEl.setAttribute('aria-pressed', 'false');
+		}
+
+	}
+
+	private updateToggleIcon(isVisible: boolean) {
+		if (isVisible) {
+			this.fcPassEnableIcon.style.display = 'none';
+			this.fcPassDisableIcon.style.display = 'block';
+            return;
+		}
+        this.fcPassEnableIcon.style.display = 'block';
+        this.fcPassDisableIcon.style.display = 'none';
+	}
+
+	private syncValidity() {
+		if (!this.inputEl) {
+            return;
+        }
+
+		// first check native inputEl validity
+		if (this.inputEl.validity.valid) { // if is valid, <fc-input> is valid
+			this.internals.setValidity({});
+		} 
+        else {
+			this.internals.setValidity(
+				this.inputEl.validity, 
+				this.inputEl.validationMessage, 
+				this.inputEl
+		    );
+		}
+
+        // later here we can set custom validators to set <fc-input> validity directly (a second layer of validation)
+	}
+
 
 	public setProps(props: Record<string, any>) { // props type defines an array with {string : anytype }
 		

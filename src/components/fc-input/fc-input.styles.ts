@@ -16,6 +16,25 @@ export const styles = `
 		display: none !important;
 	}
 
+	/* only show invalid style if the user has touched the field (blurred). the :invalid pseudo-class comes from 
+	internals.setValidity() logic. */
+
+	:host([touched]:invalid) .fc-input-field {
+		background-color: var(--fc-input-error-bg);
+		border-color: var(--fc-input-error-color);
+	}
+
+	:host([touched]:invalid) .fc-input-field:focus {
+		box-shadow: 0 0 0 2px var(--fc-input-error-focus-ring);
+	}
+
+	.fc-input-wrapper {
+		position: relative;
+		display: flex;
+		align-items: center;
+		width: 100%;
+	}
+
 	.fc-input-field {
 		width: 100%;
 		box-sizing: border-box;
@@ -32,6 +51,9 @@ export const styles = `
 		box-shadow: var(--fc-input-shadow);
 		transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 		font-family: inherit;
+
+		-webkit-appearance: none;
+		appearance: none;
 	}
 
 	.fc-input-field::placeholder {
@@ -47,18 +69,6 @@ export const styles = `
 		outline: none;
 		box-shadow: var(--fc-input-focus-ring);
 	}
-	
-	/* only show invalid style if the user has touched the field (blurred). the :invalid pseudo-class comes from 
-	internals.setValidity() logic. */
-
-	:host([touched]:invalid) .fc-input-field {
-		background-color: var(--fc-input-error-bg);
-		border-color: var(--fc-input-error-color);
-	}
-
-	:host([touched]:invalid) .fc-input-field:focus {
-		box-shadow: 0 0 0 2px var(--fc-input-error-focus-ring, rgba(220, 38, 38, 0.2));
-	}
 
 	.fc-input-field:disabled {
 		background: var(--fc-input-disabled-bg);
@@ -70,10 +80,47 @@ export const styles = `
 		color: var(--fc-input-disabled-placeholder);
     }
 
-	/* type especif css */
+	/* FILE type specific CSS */
 
 	.fc-input-field[type="file"] {
 		padding: calc(var(--fc-input-padding) * 0.7);
 		cursor: pointer;
 	}
+
+	/* PASSWORD type specific CSS */
+
+	/* when password toggle is visible, add padding to input so text doesn't overlap icon */
+	:host([type="password"]) .fc-input-field {
+		padding-right: 40px; 
+	}
+
+	.fc-password-toggle {
+		position: absolute;
+		right: 8px; /* position inside the input */
+		top: 50%;
+		transform: translateY(-50%);
+		background: transparent;
+		border: none;
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		color: var(--fc-input-password-icon-color);
+		transition: color 0.15s ease-in-out;
+		z-index: 2; /* above input */
+	}
+	
+	.fc-password-toggle[hidden] {
+        display: none !important;
+    }
+
+	.fc-password-toggle:hover {
+		color: var(--fc-input-password-icon-color-hover);
+	}
+	
+	.fc-password-toggle svg {
+		width: 20px;
+		height: 20px;
+	}
+
 `;

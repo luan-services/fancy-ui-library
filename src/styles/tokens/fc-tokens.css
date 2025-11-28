@@ -41,9 +41,13 @@
     --fc-input-placeholder: var(--fc-gray-400);
     --fc-input-disabled-placeholder: var(--fc-gray-300);
     --fc-input-focus-ring: var(--fc-focus-ring-sm) var(--fc-focus-ring-primary);
+
     --fc-input-error-bg: var(--fc-danger-50);
 	--fc-input-error-color: var(--fc-danger-300);
     --fc-input-error-focus-ring: var(--fc-focus-ring-danger);
+
+    --fc-input-password-icon-color: var(--fc-gray-400);
+    --fc-input-password-icon-color-hover: var(--fc-gray-500);
 
     --fc-input-max-width: 412px;
     --fc-input-padding: var(--fc-space-3);
