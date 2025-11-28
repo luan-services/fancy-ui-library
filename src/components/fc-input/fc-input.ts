@@ -634,10 +634,12 @@ export class FcInput extends HTMLElement {
 		if (isVisible) {
 			this.fcPassEnableIcon.style.display = 'none';
 			this.fcPassDisableIcon.style.display = 'block';
+            this.inputEl.focus();
             return;
 		}
         this.fcPassEnableIcon.style.display = 'block';
         this.fcPassDisableIcon.style.display = 'none';
+        this.inputEl.focus();
 	}
 
 	private syncValidity() {

@@ -85,7 +85,54 @@ export const styles = `
 	.fc-input-field[type="file"] {
 		padding: calc(var(--fc-input-padding) * 0.7);
 		cursor: pointer;
+		display: flex; 
+    	align-items: center;
+		border-color: var(--fc-input-file-border);
+		transition: border-color 0.15s ease-in-out, color 0.15s ease-in-out;
 	}
+
+	.fc-input-field[type="file"]:hover {
+		border-color: var(--fc-input-file-border-hover);
+	}
+
+	/* target the button inside type="file" */
+
+	.fc-input-field::file-selector-button {
+		padding: 4px 10px;
+		border-radius: var(--fc-input-radius);
+		background-color: var(--fc-input-btn-bg);
+		color: var(--fc-input-file-btn-fg);
+		border: 1px solid var(--fc-input-file-border);
+		cursor: pointer;
+		font-family: inherit;
+		transition: background-color 0.15s ease;
+	}
+
+	/* legacy browsers */
+	.fc-input-field::-webkit-file-upload-button {
+		margin-right: 12px;
+		padding: 4px 10px;
+		border-radius: var(--fc-input-radius);
+		background-color: var(--fc-input-file-btn-bg);
+		color: var(--fc-input-file-btn-fg);
+		border: 1px solid var(--fc-input-file-border);
+		cursor: pointer;
+		font-family: inherit;
+		font-size: 0.9em;
+	}
+
+	/* Hover effects for the button */
+
+	.fc-input-field:hover::file-selector-button {
+		background-color: var(--fc-input-file-btn-bg-hover); 
+	}
+
+
+	.fc-input-field:hover::-webkit-file-upload-button {
+		background-color: var(--fc-input-file-btn-bg-hover);
+	}
+
+
 
 	/* PASSWORD type specific CSS */
 

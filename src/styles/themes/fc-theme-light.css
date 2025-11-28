@@ -38,6 +38,13 @@
     --fc-input-password-icon-color: var(--fc-gray-400);
     --fc-input-password-icon-color-hover: var(--fc-gray-500);
 
+    --fc-input-file-border: var(--fc-gray-300);
+    --fc-input-file-border-hover: var(--fc-gray-300);
+    --fc-input-file-btn-bg: var(--fc-gray-50);
+    --fc-input-file-btn-bg-hover: var(--fc-gray-100);
+    --fc-input-file-btn-fg: var(--fc-gray-700);
+    --fc-input-file-btn-fg-hover: var(--fc-gray-700);
+    
     --fc-input-max-width: 412px;
     --fc-input-padding: var(--fc-space-3);
     --fc-input-border-width: var(--fc-border-width-xs);
