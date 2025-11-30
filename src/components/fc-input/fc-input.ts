@@ -21,6 +21,7 @@ range (slide), radio, checkbox, also diff components
 customize the design of each type of input
 min and max setters for date and number types
 minlenght and maxlength for email, text, password, telephone
+
 show / hide password button (icon probably)
 
 
@@ -618,6 +619,7 @@ export class FcInput extends HTMLElement {
 			this.inputEl.type = 'text';
 			this.updateToggleIcon(true);
             this.passwordBtnEl.setAttribute('aria-pressed', 'true');
+            this.inputEl.focus();
             return;
 		} 
         
@@ -626,20 +628,19 @@ export class FcInput extends HTMLElement {
 			this.inputEl.type = 'password';
 			this.updateToggleIcon(false);
             this.passwordBtnEl.setAttribute('aria-pressed', 'false');
+            this.inputEl.focus();
 		}
 
 	}
 
 	private updateToggleIcon(isVisible: boolean) {
 		if (isVisible) {
-			this.fcPassEnableIcon.style.display = 'none';
-			this.fcPassDisableIcon.style.display = 'block';
-            this.inputEl.focus();
+            this.fcPassEnableIcon.setAttribute('hidden', 'true');
+			this.fcPassDisableIcon.removeAttribute('hidden');
             return;
 		}
-        this.fcPassEnableIcon.style.display = 'block';
-        this.fcPassDisableIcon.style.display = 'none';
-        this.inputEl.focus();
+        this.fcPassEnableIcon.removeAttribute('hidden');
+        this.fcPassDisableIcon.setAttribute('hidden', 'true');
 	}
 
 	private syncValidity() {

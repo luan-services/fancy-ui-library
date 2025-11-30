@@ -83,7 +83,7 @@ export const styles = `
 	/* FILE type specific CSS */
 
 	.fc-input-field[type="file"] {
-		padding: calc(var(--fc-input-padding) * 0.7);
+		padding: calc(var(--fc-input-padding));
 		cursor: pointer;
 		display: flex; 
     	align-items: center;
@@ -91,8 +91,10 @@ export const styles = `
 		transition: border-color 0.15s ease-in-out, color 0.15s ease-in-out;
 	}
 
-	.fc-input-field[type="file"]:hover {
-		border-color: var(--fc-input-file-border-hover);
+	.fc-input-field[type="file"]:focus {
+		border-color: var(--fc-input-border-focus);
+		outline: none;
+		box-shadow: var(--fc-input-focus-ring);
 	}
 
 	/* target the button inside type="file" */
@@ -123,16 +125,14 @@ export const styles = `
 
 	/* Hover effects for the button */
 
-	.fc-input-field:hover::file-selector-button {
+	.fc-input-field::file-selector-button:hover {
 		background-color: var(--fc-input-file-btn-bg-hover); 
 	}
 
 
-	.fc-input-field:hover::-webkit-file-upload-button {
+	.fc-input-field::-webkit-file-upload-button:hover {
 		background-color: var(--fc-input-file-btn-bg-hover);
 	}
-
-
 
 	/* PASSWORD type specific CSS */
 
@@ -169,5 +169,9 @@ export const styles = `
 		width: 20px;
 		height: 20px;
 	}
+
+	.fc-password-toggle svg[hidden] {
+        display: none !important;
+    }
 
 `;
