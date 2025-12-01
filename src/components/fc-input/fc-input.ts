@@ -24,7 +24,6 @@ minlenght and maxlength for email, text, password, telephone
 
 show / hide password button (icon probably)
 
-
 will make an Label element later on
 and a Validate element that is responsible to receive a function that validates the input of any selected field and shows and error message
 will make clearable option on any element
@@ -114,6 +113,9 @@ export class FcInput extends HTMLElement {
 
         /* this bind the onTogglePassword function to this context, it is used to toggle the password icon */
 		this.onTogglePassword = this.onTogglePassword.bind(this);
+
+        /* this binds the onOnvalid function to this context */
+        this.onInvalid = this.onInvalid.bind(this);
 	}
 
 	/* this is the public validity API (getters), <form> elements automatically know when their children are
@@ -416,6 +418,9 @@ export class FcInput extends HTMLElement {
 
         /*  adding click event listener to the password button, so it can run this function on click */
 		this.passwordBtnEl.addEventListener('click', this.onTogglePassword);
+
+        /* this listener fires when a form wrapped around this input is submited (anytime checkValidity() is called) */
+        this.addEventListener('invalid', this.onInvalid);
 	}
 
 	/* this is the cleaning up function, it'll be called when the element is REMOVED from the DOM, here, we want
@@ -609,7 +614,12 @@ export class FcInput extends HTMLElement {
 		this.setAttribute('touched', '');
 	}
 
-    /* helper functions */
+    /* runs whenever a form wrapped around <fc-input> is submitted, this is used to guarantee the errors will pop up if the user
+    don't blur the input field and click directly on submit (or hit enter) */
+    private onInvalid(e: Event) {
+        this.setAttribute('touched', '');
+    }
+
 
     private onTogglePassword(e: MouseEvent) {
 		e.preventDefault(); // prevent focus loss or form submit
@@ -632,6 +642,8 @@ export class FcInput extends HTMLElement {
 		}
 
 	}
+
+    /* helper functions */
 
 	private updateToggleIcon(isVisible: boolean) {
 		if (isVisible) {

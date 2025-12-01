@@ -23,7 +23,6 @@ template.innerHTML = `
 			part="password-toggle" 
 			type="button" 
 			hidden 
-			tabindex="-1"
 			aria-label="Toggle password visibility"
 			aria-pressed="false"
 		>
