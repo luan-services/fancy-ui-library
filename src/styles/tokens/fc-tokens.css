@@ -61,4 +61,10 @@
     --fc-input-border-width: var(--fc-border-width-xs);
     --fc-input-radius: var(--fc-radius-md);
     --fc-input-shadow: var(--fc-shadow-none);
+
+    /* fc-error component */
+
+    --fc-error-color: var(--fc-danger-300);
+    --fc-error-max-width: fit-content;
+    --fc-error-font-size: var(--fc-font-size-sm);
 }
