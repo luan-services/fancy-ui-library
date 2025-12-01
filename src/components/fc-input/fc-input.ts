@@ -1,42 +1,39 @@
 import { template } from './fc-input.template'; // importing the base html and css for the componnet
 // v1.0.2
 
+/* avaliable types on <fc-input>:
+text email number password file 
 
-/* 
+available properties:
+'min' 'max' 'step': only for type = number
+'minlength' 'maxlength' 'pattern' for any type (expect file)
 
-SET VALIDITY ON COMBOBOX --> REQUIRED AND/OR STRICT (MUST MATCH A OPTION)
+about validity
 
-types:
-text
-email
-number
-password
-maybe telephone
-file
+validity is sync on every input, when the user enters the field, currently validity only works for commom attribute constraints and it
+syncs with form internals, later on, i'll add a custom validity setter.
 
-date picker e color picker should be diff components
+validation alone does not trigger visual effects, it also relies on the 'touched' attribute, 'touched' is set on the first blur / 
+on submit (whenever checkValidity() is called) thanks to onInvalid().
 
-range (slide), radio, checkbox, also diff components
+i.e: validation occurs always, visual effects only after first blur / submit. this is the same for fc-error text, it only shows up after
+the 'touched' is set on the target element
 
-customize the design of each type of input
-min and max setters for date and number types
-minlenght and maxlength for email, text, password, telephone
+*/
 
-show / hide password button (icon probably)
+/* about acessibility 
 
-will make an Label element later on
-and a Validate element that is responsible to receive a function that validates the input of any selected field and shows and error message
-will make clearable option on any element
-will make slots for icons on any element (prefix and sufix)
+aria-describedby, aria-details, aria-labelledby: shouldn't be mapped down to the input, when set, the browser knows it is set on the
+inner inputEl, thanks to delegatesFocus that passes the focus to it.
+    const shadow = this.attachShadow({ mode: 'open', delegatesFocus: true });
 
+aria-label: same as above, but you can pass it down via observedAttributes if you want
 
-<fc-input id="user-email" type="email" required></fc-input>
-<fc-error for="user-email"></fc-error>
-fc error will check fc-input validity internals to see if it is valid
+aria-invalid, aria-disabled, aria-required: whenever a state is set (by user or by inner logic), we should update form INTERNALS aria
+only, like: this.internals.ariaSomething = true
 
-ARIA-LABELS AND ACESSIBILITY FOR FcInput
+other arias: other aria properties are added directly to the element template because they do not need to be custom and does not change 
 
-in the future add a validate setter to let the user sets a function that check if it is valid or not (maybe)
 */
 
 /*
@@ -96,7 +93,7 @@ export class FcInput extends HTMLElement {
     /* this is the class constructor, whenever you create a new element on js or at the dom, this will be called */
 	constructor() {
 		super(); // calls HTMLElement class constructor too, after that, runs the following code V
-		const shadow = this.attachShadow({ mode: 'open' }); // creates a shadow DOM
+		const shadow = this.attachShadow({ mode: 'open', delegatesFocus: true }); // creates a shadow DOM, delegate focus guarantee focus will be passed to inner inputEl and aria labels will work
 		shadow.appendChild(
             template.content.cloneNode(true) // clone our html and css template and append it to the shadow DOM
         );
@@ -483,7 +480,7 @@ export class FcInput extends HTMLElement {
 
 			case 'disabled':
 				this.inputEl.disabled = this.hasAttribute('disabled');
-				this.internals.ariaDisabled = this.hasAttribute('disabled') ? 'true' : 'false';
+				this.internals.ariaDisabled = this.hasAttribute('disabled') ? 'true' : 'false'; // also update internals aria-disabled value
 				break;
 
 			case 'readonly': 
@@ -493,6 +490,7 @@ export class FcInput extends HTMLElement {
 
 			case 'required':
                 this.inputEl.required = this.hasAttribute('required'); 
+                this.internals.ariaRequired = this.hasAttribute('required') ? 'true' : 'false' // also update internals aria-requierd value
                 this.syncValidity();
                 break;
 
@@ -620,7 +618,6 @@ export class FcInput extends HTMLElement {
         this.setAttribute('touched', '');
     }
 
-
     private onTogglePassword(e: MouseEvent) {
 		e.preventDefault(); // prevent focus loss or form submit
         
@@ -663,14 +660,14 @@ export class FcInput extends HTMLElement {
 		// first check native inputEl validity
 		if (this.inputEl.validity.valid) { // if is valid, <fc-input> is valid
 			this.internals.setValidity({});
+            return;
 		} 
-        else {
-			this.internals.setValidity(
-				this.inputEl.validity, 
-				this.inputEl.validationMessage, 
-				this.inputEl
-		    );
-		}
+
+        this.internals.setValidity(
+            this.inputEl.validity, 
+            this.inputEl.validationMessage, 
+            this.inputEl
+        );
 
         // later here we can set custom validators to set <fc-input> validity directly (a second layer of validation)
 	}

@@ -45,6 +45,22 @@
             <fc-input type="file"></fc-input>
         </div>
 
+        <div class="container">
+            <h2 class="h2">FC-Error:</h2>
+
+            <fc-input id="username" name="username" required minlength="3" placeholder="Enter your username..." type="text"></fc-input>
+            <fc-error for="username"></fc-error>
+
+            <form style="display: flex; gap: 16px; align-items: center;">
+                <fc-input id="email-field" type="email" label="Email Address" required placeholder="Enter your email..."></fc-input>
+
+                <fc-error for="email-field"></fc-error>
+
+                <button type="submit">Submit</button>
+                <button type="reset">Reset</button>
+            </form>
+        </div>
+
 
         <script type="module">
             // imports and register all components in the DOM
@@ -84,7 +100,7 @@
                     value: 'fruit-82' // calling value here will just set the initial value, it won't create an attribute value
                 });
 
-                cbFruits.addEventListener("fc-change", e => console.log(e.detail));             
+                cbFruits.addEventListener("fc-change", e => console.log(e.detail));         
             });
 
 
