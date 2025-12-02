@@ -1,5 +1,5 @@
 import { template } from './fc-input.template'; // importing the base html and css for the componnet
-// v1.0.2
+// v1.0.3
 
 /* avaliable types on <fc-input>:
 text email number password file 
@@ -18,6 +18,9 @@ on submit (whenever checkValidity() is called) thanks to onInvalid().
 
 i.e: validation occurs always, visual effects only after first blur / submit. this is the same for fc-error text, it only shows up after
 the 'touched' is set on the target element
+
+there is also a custom setter (validate) to set a function that validates the input: user must send a function, when they return
+a string (the error message) it is an error, if they return 'null', the input is valid
 
 */
 
