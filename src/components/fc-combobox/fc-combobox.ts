@@ -135,6 +135,7 @@ export class FcCombobox extends HTMLElement {
 		*/
 
 		this.onInput = this.onInput.bind(this);
+		this.onChange = this.onChange.bind(this);
 		this.onOptionSelect = this.onOptionSelect.bind(this);
 		this.onOutsideClick = this.onOutsideClick.bind(this);
 		this.onFocusOut = this.onFocusOut.bind(this);
@@ -403,9 +404,12 @@ export class FcCombobox extends HTMLElement {
         }
 
 		/* this functions add an input event listener to the input element, whenever the users type anything,
-		our 'oninput' function will be called.
-		*/
+		our 'oninput' function will be called. */
 		this.inputEl.addEventListener('input', this.onInput);
+
+		/* this functions add an input event listener to the input element, whenever the users type anything,
+		our 'onChange' function will be called. */
+		this.inputEl.addEventListener('change', this.onChange);
 
 		/* this functions add an 'fc-option-select' event listener to our element, fc-option-select is a custom event
 		created inside the <option> element, that launches whenever the users click on the option
@@ -593,7 +597,7 @@ export class FcCombobox extends HTMLElement {
 			this.toggleDropdown(true);
 			this.syncValidity();
 			this.dispatchEvent( // dispatch a new event for anything outside listen saying that the values are changed (to work with frameworks)
-				new CustomEvent('fc-change', 
+				new CustomEvent('fc-input', 
 				{
 					detail: { 
 						value: rawQuery, 
@@ -642,7 +646,7 @@ export class FcCombobox extends HTMLElement {
 		this.syncValidity();
 
 		this.dispatchEvent( // dispatch a new event for anything outside listen saying that the values are changed (to work with frameworks)
-			new CustomEvent('fc-change', 
+			new CustomEvent('fc-input', 
 			{
 				detail: { 
 					value: finalValue, 
@@ -657,6 +661,19 @@ export class FcCombobox extends HTMLElement {
 		this.toggleDropdown(hasMatch);
 	}
 	
+	private onChange(e: Event) {
+        e.stopPropagation(); // Prevent the native input 'change' from bubbling up
+        
+        this.dispatchEvent(new CustomEvent('fc-change', { 
+            detail: { 
+                value: this._value, 
+                label: this.inputEl.value
+            },
+            bubbles: true, 
+            composed: true 
+        }));
+    }
+
 	// when an option is selected, calls this
 	private onOptionSelect(e: CustomEvent) {
 		const { value, label } = e.detail; // detail are the properties of the custom event from option

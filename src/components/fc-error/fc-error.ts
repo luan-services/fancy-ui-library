@@ -100,7 +100,10 @@ export class FcError extends HTMLElement {
 
         /* INPUT: the user is typing, this is only needed to HIDE the error if the user fix it. there is no need to check 
         "touched" here, because if the error is currently visible, they effectively "touched" it already. */
-        this.targetEl.addEventListener('input', this.handleErrorState);
+        this.targetEl.addEventListener('fc-input', this.handleErrorState);
+
+        /* CHANGE: value effectively changed */
+        this.targetEl.addEventListener('fc-change', this.handleErrorState);
 
         /* RESET: listen to the element custom reset event that launches when a reset button is clicked */
         this.targetEl.addEventListener('fc-reset', this.handleErrorState);
@@ -112,7 +115,8 @@ export class FcError extends HTMLElement {
         if (this.targetEl) {
             this.targetEl.removeEventListener('blur', this.handleErrorState);
             this.targetEl.removeEventListener('invalid', this.handleErrorState);
-            this.targetEl.removeEventListener('input', this.handleErrorState);
+            this.targetEl.removeEventListener('fc-input', this.handleErrorState);
+            this.targetEl.removeEventListener('fc-change', this.handleErrorState);
             this.targetEl.removeEventListener('fc-reset', this.handleErrorState);
             this.targetEl = null;
         }
