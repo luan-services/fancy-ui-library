@@ -12,7 +12,7 @@ import { FcOption } from '../fc-option';
 	name - an actual attribute of <fc-combobox> (used to define the element as part of a form if wanted to), calling its setters will create an attribute on the main component
 
 	value - it is a mirror from the 'value' attribute of CHILD fc-option element, but it is not set as an attribute itself, you can use
-	it to set an INITIAL optionValue, but any changes on the current selected value is stored on private optionValue property
+	it to set an INITIAL _value, but any changes on the current selected value is stored on private _value property
 
 	you can do <fc-combobox value="country-1"/> tho, thanks to it being an observedAttribute, if you do this, attributeChangecallback
 	wil run and call FcCombobox.value setter.
@@ -99,7 +99,7 @@ export class FcCombobox extends HTMLElement {
 	private internals: ElementInternals;
 
 	// references the current selected option's value
-	private optionValue: string = '';
+	private _value: string = '';
 
 	// tracks the current index of the active option (for keyboard navgation)
     private activeIndex: number = -1;
@@ -231,16 +231,16 @@ export class FcCombobox extends HTMLElement {
 	/* value must also have a setter to work on react, it'll reflect the options value, an invalid value can also be passed
 	*/
 	public get value() {
-		return this.optionValue;
+		return this._value;
 	}
 
 	public set value(newValue: string) {
         // prevent infinite loops if the value is the same
-        if (this.optionValue === newValue) {
+        if (this._value === newValue) {
 			return;
 		}
 
-        this.optionValue = newValue;
+        this._value = newValue;
         this.internals.setFormValue(newValue);
 
 		if (!this.inputEl) { // prevents crash if inputEl does not exist yet
@@ -261,6 +261,7 @@ export class FcCombobox extends HTMLElement {
         	}
         });
 
+		// if no matching option found from value, updates 'value' to it		
 		if (this.inputEl.value === '') {
 			this.inputEl.value = newValue;
 		};
@@ -519,7 +520,7 @@ export class FcCombobox extends HTMLElement {
 	/* if there is a button type="reset" on the form, and the user clicks it, this function will be run */
 	formResetCallback() {
 
-		this.optionValue = '';
+		this._value = '';
 		
 		if (this.inputEl) {
 			this.inputEl.value = '';
@@ -553,7 +554,7 @@ export class FcCombobox extends HTMLElement {
 		const restoredValue = state as string;
 
 		if (restoredValue) { // if there was a value, add it again and update the option label
-			this.optionValue = restoredValue;
+			this._value = restoredValue;
 			this.internals.setFormValue(restoredValue);
 
 			const options = Array.from(this.querySelectorAll('fc-option')) as FcOption[];
@@ -586,7 +587,7 @@ export class FcCombobox extends HTMLElement {
 			});
 
 
-			this.optionValue = '';
+			this._value = '';
 			this.internals.setFormValue(''); 
 			this.inputEl.removeAttribute('aria-activedescendant');
 			this.toggleDropdown(true);
@@ -636,7 +637,7 @@ export class FcCombobox extends HTMLElement {
 			finalValue = rawQuery
 		};
 
-		this.optionValue = finalValue; // updates the value property of <fc-combobox>
+		this._value = finalValue; // updates the value property of <fc-combobox>
 		this.internals.setFormValue(finalValue); // also update the form 'value' property: <fc-combobox value="">
 		this.syncValidity();
 
@@ -666,7 +667,7 @@ export class FcCombobox extends HTMLElement {
 		 }
 
 		this.inputEl.value = label; // updates the input text to the option text
-		this.optionValue = value; // updates the value property of <fc-combobox>
+		this._value = value; // updates the value property of <fc-combobox>
 		this.internals.setFormValue(value); // also update the form 'value' property: <fc-combobox value="">
 
 		// get all option elements and makes an array
@@ -727,7 +728,7 @@ export class FcCombobox extends HTMLElement {
 	// specif function for react to ensure <fc-combobox> value property will be correctly added to the <fc-option> that was added later
 	private onSlotChange() {
 		// if there is no value set internally, we don't need to sync anything
-        if (!this.optionValue) {
+        if (!this._value) {
 			return;
 		}
 
@@ -735,7 +736,7 @@ export class FcCombobox extends HTMLElement {
         let foundMatch = false;
 
         options.forEach((option) => {
-            const selected = (option.value === this.optionValue); // checks if the selected option is the current option
+            const selected = (option.value === this._value); // checks if the selected option is the current option
 
 			option.selected = selected // if so, set the option as selected by calling set selected from child fc-option, if not, remove selected attribute(query === label)
 			option.hidden = !selected // if so, show the option
@@ -750,7 +751,7 @@ export class FcCombobox extends HTMLElement {
         });
 
         if (!foundMatch && this.inputEl.value === '') {
-            this.inputEl.value = this.optionValue;
+            this.inputEl.value = this._value;
         }
 
 		this.syncValidity();
@@ -843,7 +844,7 @@ export class FcCombobox extends HTMLElement {
         const label = option.label;
 
         this.inputEl.value = label;
-        this.optionValue = value;
+        this._value = value;
         this.internals.setFormValue(value);
 
         const allOptions = Array.from(this.querySelectorAll('fc-option')) as FcOption[];
@@ -912,10 +913,10 @@ export class FcCombobox extends HTMLElement {
 
         // 2. Strict Check (NEW)
         // If strict is true, and we have a value, that value MUST match one of the options
-        if (this.strict && this.optionValue) {
+        if (this.strict && this._value) {
             const options = Array.from(this.querySelectorAll('fc-option')) as FcOption[];
             // Check if any option matches the current internal value
-            const match = options.some(opt => opt.value === this.optionValue);
+            const match = options.some(opt => opt.value === this._value);
             
             if (!match) {
                 this.internals.setValidity(
@@ -929,7 +930,7 @@ export class FcCombobox extends HTMLElement {
 
         // 3. Custom Validator function (User defined)
         if (this._validatorFunction) {
-            const customErrorMessage = this._validatorFunction(this.optionValue);
+            const customErrorMessage = this._validatorFunction(this._value);
             if (customErrorMessage) {
                 this.internals.setValidity(
                     { customError: true }, 
