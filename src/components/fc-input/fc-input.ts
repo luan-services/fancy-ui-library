@@ -418,9 +418,6 @@ export class FcInput extends HTMLElement {
 			this.inputEl.value = this._value;
 		}
 
-		/* doing inital validating if the element starts with any 'value' */
-		this.syncValidity();
-
 		/* if 'name' exists, this component will be considered a form part, so it'll set the form 'value' property: <fc-input value="">, 
 		on the form you will see a field (name: 'fc-input name property', value: "fc-input value property")
 		but even if 'name' does not exists, it must have a formValue for the formRestore and formReset callbacks to work, browser is
@@ -440,6 +437,9 @@ export class FcInput extends HTMLElement {
 
         /* this listener fires when a form wrapped around this input is submited (anytime checkValidity() is called) */
         this.addEventListener('invalid', this.onInvalid);
+        
+        /* doing inital validating if the element starts with any 'value' */
+		this.syncValidity();
 	}
 
 	/* this is the cleaning up function, it'll be called when the element is REMOVED from the DOM, here, we want

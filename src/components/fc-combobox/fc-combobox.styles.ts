@@ -9,6 +9,18 @@ export const styles = `
 		max-width: var(--fc-combobox-max-width);
 	}
 
+	/* only show invalid style if the user has touched the field (blurred). the :invalid pseudo-class comes from 
+	internals.setValidity() logic. */
+
+	:host([touched]:invalid) .fc-input {
+        background-color: var(--fc-combobox-error-bg);
+        border-color: var(--fc-combobox-error-color);
+    }
+
+    :host([touched]:invalid) .fc-input:focus {
+        box-shadow: 0 0 0 2px var(--fc-combobox-error-focus-ring);
+    }
+
 	.fc-input {
 		width: 100%;
 		box-sizing: border-box;

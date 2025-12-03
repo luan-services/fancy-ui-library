@@ -1,6 +1,6 @@
 import { template } from './fc-combobox.template';
 import { FcOption } from '../fc-option';
-// v1.0.2
+// v1.0.3
 
 /* in this component, the properties 'label' doesn't exist as an ACTUAL attribute:
 
@@ -61,12 +61,30 @@ and if it is an observed attribute, attributeChangecallback will be called, and 
 
 */
 
+/* about validity
+
+validity is sync on every input, when the user enters the field, currently validity only works for commom attribute constraints and it
+syncs with form internals, later on, i'll add a custom validity setter.
+
+validation alone does not trigger visual effects, it also relies on the 'touched' attribute, 'touched' is set on the first blur / 
+on submit (whenever checkValidity() is called) thanks to onInvalid().
+
+i.e: validation occurs always, visual effects only after first blur / submit. this is the same for fc-error text, it only shows up after
+the 'touched' is set on the target element
+
+there is also a custom setter (validate) to set a function that validates the input: user must send a function, when they return
+a string (the error message) it is an error, if they return 'null', the input is valid
+
+required, readonly and strict attributes are for validation
+
+*/
+
 export class FcCombobox extends HTMLElement {
 	
 	/* this is a static method that tells the browser which atributes should be 'watched', that means whenever 'name' 
 	or 'placeholder' attributes are set by the user like <fc-combobox name="a">, 'attributeChangedCallback' will be called. */
 	static get observedAttributes() {
-		return ['placeholder', 'name', 'value', 'disabled'];
+		return ['placeholder', 'name', 'value', 'disabled', 'required', 'readonly', 'strict'];
 	}
 
 	/* these are declared attributes, that later on will receive both elements from the shadowRoot with 
@@ -85,6 +103,11 @@ export class FcCombobox extends HTMLElement {
 
 	// tracks the current index of the active option (for keyboard navgation)
     private activeIndex: number = -1;
+
+    /* this will store user's custom validation function for <fc-input> (if exists) 
+    validatorFunction should have a logic that either returns a string (the error message) or null, if it returns null after
+    calculations, the input passed user's validation, if returns a string, it is an error. */
+	private _validatorFunction: ((value: string) => string | null) | null = null;
 
 	/* this is the class constructor, whenever you create a new element on js or at the dom, this will be called */
 	constructor() {
@@ -125,7 +148,38 @@ export class FcCombobox extends HTMLElement {
 
 		/* bind the keydown function for keyboard navigation */
         this.onKeyDown = this.onKeyDown.bind(this);
+
+		
+        /* this bind the onBlur and onInvalid function to this context, it is used to set 'touched' attribute to this element and to inputEl 
+        on blur, so the CSS invalid properties will start working*/
+		this.onBlur = this.onBlur.bind(this);
+        this.onInvalid = this.onInvalid.bind(this);
 	}
+
+	
+	/* this is the public validity API (getters), <form> elements automatically know when their children are
+    valid or not, but the user (and specially our <fc-error> element) needs and api to check the validity status of our component */
+	
+	public get validity() { 
+        return this.internals.validity; 
+    }
+
+	public get validationMessage() { 
+        return this.internals.validationMessage; 
+    }
+
+	public get willValidate() { 
+        return this.internals.willValidate; 
+    }
+
+	public checkValidity() { 
+        return this.internals.checkValidity(); 
+    }
+
+	public reportValidity() { 
+        return this.internals.reportValidity(); 
+    }
+
 
 	/* defines getter and setter methods for attributes and also for properties
 		
@@ -210,6 +264,8 @@ export class FcCombobox extends HTMLElement {
 		if (this.inputEl.value === '') {
 			this.inputEl.value = newValue;
 		};
+
+		this.syncValidity();
     }
 
 	public get label() {
@@ -258,7 +314,56 @@ export class FcCombobox extends HTMLElement {
             // injects on Light DOM (inside do <fc-combobox>), this is not good for SEO because all options text won't be ready until js runs
             this.appendChild(optEl);
         });
+
+		this.syncValidity();
 	}
+	
+	/* these are attributes to set how validation should work */
+
+	public get required() { 
+		return this.hasAttribute('required'); 
+	}
+
+    public set required(val: boolean) {
+        if (val) {
+            this.setAttribute('required', 'true');
+            return;
+        }
+        this.removeAttribute('required');
+    }
+
+    public get readonly() { 
+		return this.hasAttribute('readonly'); 
+	}
+
+    public set readonly(val: boolean) {
+        if (val) {
+            this.setAttribute('readonly', 'true');
+            return;
+        }
+        this.removeAttribute('readonly');
+    }
+
+    public get strict() { 
+		return this.hasAttribute('strict'); 
+	}
+
+    public set strict(val: boolean) {
+        if (val) {
+            this.setAttribute('strict', '');
+            return;
+        }
+        this.removeAttribute('strict');
+    }
+
+	public get validator() { 
+		return this._validatorFunction; 
+	}
+	
+    public set validator(func: ((value: string) => string | null) | null) {
+        this._validatorFunction = func;
+        this.syncValidity();
+    }
 
 	/* this is the function that will be called when the element is inserted in the DOM */
 
@@ -285,6 +390,16 @@ export class FcCombobox extends HTMLElement {
 			this.inputEl.disabled = true;
 			this.internals.ariaDisabled = 'true';
 		}
+		
+		/* pass down readonly constraint to the inner inputEl */
+		if (this.hasAttribute('readonly')) {
+            this.inputEl.readOnly = true;
+        }
+		/* sets aria required if exist */
+        if (this.hasAttribute('required')) {
+            this.internals.ariaRequired = 'true';
+			this.inputEl.required = true;
+        }
 
 		/* this functions add an input event listener to the input element, whenever the users type anything,
 		our 'oninput' function will be called.
@@ -317,8 +432,12 @@ export class FcCombobox extends HTMLElement {
 		*/
 		this.dropdownEl.addEventListener('mousedown', this.onDropdownClick);
 
+		this.inputEl.addEventListener('blur', this.onBlur);
 
-    
+		/* this listener fires when a form wrapped around this input is submited (anytime checkValidity() is called) */
+		this.addEventListener('invalid', this.onInvalid);
+
+
 		/* this listeners is for react-only, rendering elements on react is a bit different, sometimes, it might render
 		<fc-combobox> BEFORE <fc-option>, so when it first runs, it might miss the <fc-options>'s and not initialize it correctly 
 
@@ -333,7 +452,9 @@ export class FcCombobox extends HTMLElement {
 
 		/* creates the keydown listener to handle keyboard navigation */
         this.inputEl.addEventListener('keydown', this.onKeyDown);
-			
+
+		/* doing inital validating if the element starts with any 'value' */
+		this.syncValidity();
 	}
 
 	/* this is the function that runs whenever an observed attribute is changed (via JS), note: this is called 
@@ -368,6 +489,21 @@ export class FcCombobox extends HTMLElement {
 			}
 		}
 
+		if (name === 'required' && this.inputEl) {
+			const isRequired = this.hasAttribute('required');
+			this.internals.ariaRequired = isRequired ? 'true' : 'false';
+			this.inputEl.required = isRequired;
+			this.syncValidity();
+		}
+
+		if (name === 'readonly' && this.inputEl) {
+			this.inputEl.readOnly = this.hasAttribute('readonly');
+		}
+
+		if (name === 'strict' && this.inputEl) {
+			this.syncValidity();
+		}
+
 	}
 	
 	/* this is the cleaning up function, it'll be called when the element is REMOVED from the DOM, here, we want
@@ -398,6 +534,10 @@ export class FcCombobox extends HTMLElement {
 		});
 
 		this.toggleDropdown(false);
+
+		/* removes touched attribute and reset validity on form reset */
+		this.removeAttribute('touched'); 
+        this.syncValidity();
 	}
 
 	/* this runs whenever the user click on return on the page and them go back to the form page again,
@@ -417,6 +557,7 @@ export class FcCombobox extends HTMLElement {
 				this.inputEl.value = match.label;
 				match.selected = true;
 			}
+			this.syncValidity();
 		};
 	}
 
@@ -443,7 +584,7 @@ export class FcCombobox extends HTMLElement {
 			this.internals.setFormValue(''); 
 			this.inputEl.removeAttribute('aria-activedescendant');
 			this.toggleDropdown(true);
-
+			this.syncValidity();
 			this.dispatchEvent( // dispatch a new event for anything outside listen saying that the values are changed (to work with frameworks)
 				new CustomEvent('fc-change', 
 				{
@@ -491,7 +632,7 @@ export class FcCombobox extends HTMLElement {
 
 		this.optionValue = finalValue; // updates the value property of <fc-combobox>
 		this.internals.setFormValue(finalValue); // also update the form 'value' property: <fc-combobox value="">
-
+		this.syncValidity();
 
 		this.dispatchEvent( // dispatch a new event for anything outside listen saying that the values are changed (to work with frameworks)
 			new CustomEvent('fc-change', 
@@ -533,7 +674,7 @@ export class FcCombobox extends HTMLElement {
         });
 
 		this.toggleDropdown(false); // close dropdown
-
+		this.syncValidity();
 		this.dispatchEvent( // dispatch a new event for anything outside listen saying that the values are changed (to work with frameworks)
 			new CustomEvent('fc-change', {
 				detail: { value, label },
@@ -605,6 +746,8 @@ export class FcCombobox extends HTMLElement {
         if (!foundMatch && this.inputEl.value === '') {
             this.inputEl.value = this.optionValue;
         }
+
+		this.syncValidity();
 	};
 
 	/* this is the function that runs whenever the press any keyboard key */
@@ -655,6 +798,14 @@ export class FcCombobox extends HTMLElement {
         }
     }
 
+	private onBlur() {
+        this.setAttribute('touched', '');
+    }
+
+    private onInvalid(e: Event) {
+        this.setAttribute('touched', '');
+    }
+
     /* this is a helper to set the active option on onKeyDown method */
     private setActiveOption(index: number, visibleOptions: FcOption[]) {
         // Remove active from all
@@ -698,7 +849,7 @@ export class FcCombobox extends HTMLElement {
         });
 
         this.toggleDropdown(false);
-
+		this.syncValidity();
         this.dispatchEvent(
             new CustomEvent('fc-change', {
                 detail: { value, label },
@@ -737,6 +888,55 @@ export class FcCombobox extends HTMLElement {
 		this.inputEl.removeAttribute('aria-activedescendant');
 
 	}
+
+	private syncValidity() {
+        if (!this.inputEl) {
+			return;
+		}
+
+        /* first check required constraint */
+		if (!this.inputEl.validity.valid) {
+				this.internals.setValidity(
+					this.inputEl.validity,
+					this.inputEl.validationMessage,
+					this.inputEl
+				);
+				return;
+		}
+
+        // 2. Strict Check (NEW)
+        // If strict is true, and we have a value, that value MUST match one of the options
+        if (this.strict && this.optionValue) {
+            const options = Array.from(this.querySelectorAll('fc-option')) as FcOption[];
+            // Check if any option matches the current internal value
+            const match = options.some(opt => opt.value === this.optionValue);
+            
+            if (!match) {
+                this.internals.setValidity(
+                    { customError: true }, // Using customError to allow custom message
+                    "Please select a valid option from the list.",
+                    this.inputEl
+                );
+                return;
+            }
+        }
+
+        // 3. Custom Validator function (User defined)
+        if (this._validatorFunction) {
+            const customErrorMessage = this._validatorFunction(this.optionValue);
+            if (customErrorMessage) {
+                this.internals.setValidity(
+                    { customError: true }, 
+                    customErrorMessage, 
+                    this.inputEl
+                );
+                return;
+            }
+        }
+
+        // 4. Valid
+        this.internals.setValidity({});
+    }
 	
 	public setProps(props: Record<string, any>) { // props type defines an array with {string : anytype }
 		
@@ -761,4 +961,3 @@ export class FcCombobox extends HTMLElement {
 		}
 	}
 }
-
