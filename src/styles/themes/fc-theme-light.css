@@ -9,6 +9,10 @@
     --fc-combobox-placeholder: var(--fc-gray-400);
     --fc-combobox-disabled-placeholder: var(--fc-gray-300);
     --fc-combobox-focus-ring: var(--fc-focus-ring-sm) var(--fc-focus-ring-primary);
+
+    --fc-combobox-error-bg: var(--fc-danger-50);
+	--fc-combobox-error-color: var(--fc-danger-300);
+    --fc-combobox-error-focus-ring: var(--fc-focus-ring-danger);
 	
     /* fc-option component */
     --fc-option-bg: var(--fc-white);
