@@ -12,7 +12,7 @@ export const styles = `
     }
 
     .fc-error-text {
-        color: var(--fc-error-color);
+        color: var(--fc-error-fg);
         font-family: var(--fc-font-family, inherit);
         font-size: var(--fc-error-font-size);
         display: flex;

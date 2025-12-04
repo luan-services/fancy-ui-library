@@ -21,12 +21,12 @@ export const styles = `
 	internals.setValidity() logic. */
 
 	:host([touched]:invalid) .fc-input-field {
-		background: var(--fc-input-error-bg);
-		border-color: var(--fc-input-error-color);
+		background: var(--fc-input-bg-error);
+		border-color: var(--fc-input-border-error);
 	}
 
 	:host([touched]:invalid) .fc-input-field:focus {
-		box-shadow: 0 0 0 2px var(--fc-input-error-focus-ring);
+		box-shadow: 0 0 0 2px var(--fc-input-focus-ring-error);
 	}
 
 	.fc-input-wrapper {
@@ -72,15 +72,23 @@ export const styles = `
 	}
 
 	.fc-input-field:disabled {
-		background: var(--fc-input-disabled-bg);
+		background: var(--fc-input-bg-disabled);
 		cursor: not-allowed;
 		box-shadow: none;
 	}
 
 	.fc-input-field:disabled::placeholder {
-		color: var(--fc-input-disabled-placeholder);
+		color: var(--fc-input-placeholder-disabled);
     }
 
+	.fc-input-field:disabled:hover {
+		border-color: var(--fc-input-border);
+	}
+
+	.fc-input-field:disabled:focus {
+		border-color: var(--fc-input-border);
+	}
+		
 	/* FILE type specific CSS */
 
 	.fc-input-field[type="file"] {

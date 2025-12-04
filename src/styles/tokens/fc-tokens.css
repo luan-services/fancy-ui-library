@@ -25,19 +25,19 @@
 
     /* fc-option component */
     --fc-option-bg: var(--fc-white);
-    --fc-option-disabled-bg: var(--fc-gray-50);
+    --fc-option-bg-disabled: var(--fc-gray-50);
     --fc-option-bg-hover: var(--fc-gray-100);
     --fc-option-bg-selected: var(--fc-primary-200);
     --fc-option-bg-active: var(--fc-primary-100);
     --fc-option-fg: var(--fc-gray-900);
-    --fc-option-disabled-fg: var(--fc-gray-300);
+    --fc-option-fg-disabled: var(--fc-gray-300);
     --fc-option-fg-selected: var(--fc-primary-700);
     --fc-option-padding: var(--fc-space-3);
     --fc-option-radius: var(--fc-radius-md);
 
     /* fc-input component */
     --fc-input-bg: var(--fc-white);
-    --fc-input-disabled-bg: var(--fc-gray-50);
+    --fc-input-bg-disabled: var(--fc-gray-50);
     --fc-input-fg: var(--fc-gray-900);
     --fc-input-border: var(--fc-gray-400);
     --fc-input-border-hover: var(--fc-gray-400);
@@ -46,9 +46,9 @@
     --fc-input-disabled-placeholder: var(--fc-gray-300);
     --fc-input-focus-ring: var(--fc-focus-ring-sm) var(--fc-focus-ring-primary);
 
-    --fc-input-error-bg: var(--fc-danger-50);
-	--fc-input-error-color: var(--fc-danger-300);
-    --fc-input-error-focus-ring: var(--fc-focus-ring-danger);
+    --fc-input-bg-error: var(--fc-danger-50);
+	--fc-input-border-error: var(--fc-danger-300);
+    --fc-input-focus-ring-error: var(--fc-focus-ring-danger);
 
     --fc-input-password-icon-color: var(--fc-gray-400);
     --fc-input-password-icon-color-hover: var(--fc-gray-500);
@@ -68,7 +68,7 @@
 
     /* fc-error component */
 
-    --fc-error-color: var(--fc-danger-300);
+    --fc-error-fg: var(--fc-danger-300);
     --fc-error-max-width: fit-content;
     --fc-error-font-size: var(--fc-font-size-sm);
 }

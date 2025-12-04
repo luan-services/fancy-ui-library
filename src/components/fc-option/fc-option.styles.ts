@@ -41,14 +41,14 @@ export const styles = `
     }
 
 	button.fc-option:disabled {
-		color: var(--fc-option-disabled-fg);
-		background: var(--fc-option-disabled-bg);
+		color: var(--fc-option-fg-disabled);
+		background: var(--fc-option-bg-disabled);
 		pointer-events: none; // this prevents disabled attribute on button to move focus out of the fc-combobox
 		box-shadow: none;
 	}
 
     button.fc-option:disabled:hover {
-		background: var(--fc-option-disabled-bg);
+		background: var(--fc-option-bg-disabled);
 	}
 
 	button.fc-option[aria-selected="true"] {
