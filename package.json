@@ -6,7 +6,7 @@
   "main": "dist/index.js",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
-  "style": "dist/index.css", 
+  "style": "dist/index.css",
   "sideEffects": [
     "./src/styles/index.ts",
     "**/*.css"
@@ -23,13 +23,14 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "tsup", 
+    "build": "tsup",
     "build:watch": "tsup --watch"
   },
   "author": "Luan Peixoto",
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^24.10.0",
+    "terser": "^5.44.1",
     "tsup": "^8.5.0",
     "typescript": "^5.9.3",
     "vite": "^7.2.0"
