@@ -1,6 +1,6 @@
 import { template } from './fc-combobox.template';
 import { FcOption } from '../fc-option';
-// v1.0.3
+// v1.0.4
 
 /* in this component, the properties 'label' doesn't exist as an ACTUAL attribute:
 
@@ -249,7 +249,7 @@ export class FcCombobox extends HTMLElement {
 		}
 
         // sync the UI (find the option and select it)
-        const options = Array.from(this.querySelectorAll('fc-option')) as FcOption[];
+        const options = this.querySelectorAll('fc-option') as NodeListOf<FcOption>;
 
 		options.forEach((option) => {
 			const selected = (option.value === newValue); // checks if the selected option is the current option
@@ -532,7 +532,7 @@ export class FcCombobox extends HTMLElement {
 
 		this.internals.setFormValue('');
 
-		const options = Array.from(this.querySelectorAll('fc-option')) as FcOption[];
+		const options = this.querySelectorAll('fc-option') as NodeListOf<FcOption>;
 		options.forEach(option => {
 			option.selected = false;
 			option.hidden = false;
@@ -561,13 +561,14 @@ export class FcCombobox extends HTMLElement {
 			this._value = restoredValue;
 			this.internals.setFormValue(restoredValue);
 
-			const options = Array.from(this.querySelectorAll('fc-option')) as FcOption[];
-			const match = options.find(opt => opt.value === restoredValue);
+			const options = this.querySelectorAll('fc-option') as NodeListOf<FcOption>;
 
-			if (match && this.inputEl) {
-				this.inputEl.value = match.label;
-				match.selected = true;
-			}
+			options.forEach(option => {
+				if (option.value === restoredValue && this.inputEl) {
+					this.inputEl.value = option.label;
+					option.selected = true;
+				}
+			});
 			this.syncValidity();
 		};
 	}
@@ -580,7 +581,7 @@ export class FcCombobox extends HTMLElement {
 		const query = rawQuery.toLowerCase().trim();
 
 		// get all option elements and makes an array
-		const options = Array.from(this.querySelectorAll('fc-option')) as FcOption[];
+		const options = this.querySelectorAll('fc-option') as NodeListOf<FcOption>;
 
 		// if query is empty, show all options and close
 		if (query.length === 0) { 
@@ -688,7 +689,7 @@ export class FcCombobox extends HTMLElement {
 		this.internals.setFormValue(value); // also update the form 'value' property: <fc-combobox value="">
 
 		// get all option elements and makes an array
-        const options = Array.from(this.querySelectorAll('fc-option')) as FcOption[];
+        const options = this.querySelectorAll('fc-option') as NodeListOf<FcOption>;
 
 		options.forEach((option) => {
 			const selected = (option.value === value); // checks if the selected option is the current option
@@ -749,7 +750,7 @@ export class FcCombobox extends HTMLElement {
 			return;
 		}
 
-        const options = Array.from(this.querySelectorAll('fc-option')) as FcOption[];
+        const options = this.querySelectorAll('fc-option') as NodeListOf<FcOption>;
         let foundMatch = false;
 
         options.forEach((option) => {
@@ -864,7 +865,7 @@ export class FcCombobox extends HTMLElement {
         this._value = value;
         this.internals.setFormValue(value);
 
-        const allOptions = Array.from(this.querySelectorAll('fc-option')) as FcOption[];
+        const allOptions = this.querySelectorAll('fc-option') as NodeListOf<FcOption>;
         allOptions.forEach((opt) => {
             const selected = (opt.value === value);
             opt.selected = selected;
@@ -928,16 +929,21 @@ export class FcCombobox extends HTMLElement {
 				return;
 		}
 
-        // 2. Strict Check (NEW)
-        // If strict is true, and we have a value, that value MUST match one of the options
+        // if strict is true, and there is a value, that value MUST match one of the options
         if (this.strict && this._value) {
-            const options = Array.from(this.querySelectorAll('fc-option')) as FcOption[];
-            // Check if any option matches the current internal value
-            const match = options.some(opt => opt.value === this._value);
+            const options = this.querySelectorAll('fc-option') as NodeListOf<FcOption>;
+			
+            let match = false;
             
+			options.forEach(option => {
+				if (option.value === this._value) {
+					match = true;
+				}
+			});
+
             if (!match) {
                 this.internals.setValidity(
-                    { customError: true }, // Using customError to allow custom message
+                    { customError: true },
                     "Please select a valid option from the list.",
                     this.inputEl
                 );
@@ -945,7 +951,7 @@ export class FcCombobox extends HTMLElement {
             }
         }
 
-        // 3. Custom Validator function (User defined)
+        // custom validator function (user defined)
         if (this._validatorFunction) {
             const customErrorMessage = this._validatorFunction(this._value);
             if (customErrorMessage) {
