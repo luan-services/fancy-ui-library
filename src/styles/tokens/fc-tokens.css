@@ -4,18 +4,18 @@
 
     /* fc-combobox component */
     --fc-combobox-bg: var(--fc-white);
-    --fc-combobox-disabled-bg: var(--fc-gray-50);
+    --fc-combobox-bg-disabled: var(--fc-gray-50);
     --fc-combobox-fg: var(--fc-gray-900);
     --fc-combobox-border: var(--fc-gray-300);
     --fc-combobox-border-hover: var(--fc-gray-400);
     --fc-combobox-border-focus: var(--fc-primary-400);
     --fc-combobox-placeholder: var(--fc-gray-400);
-    --fc-combobox-disabled-placeholder: var(--fc-gray-300);
+    --fc-combobox-placeholder-disabled: var(--fc-gray-300);
     --fc-combobox-focus-ring: var(--fc-focus-ring-sm) var(--fc-focus-ring-primary);
 
-    --fc-combobox-error-bg: var(--fc-danger-50);
-	--fc-combobox-error-color: var(--fc-danger-300);
-    --fc-combobox-error-focus-ring: var(--fc-focus-ring-danger);
+    --fc-combobox-bg-error: var(--fc-danger-50);
+	--fc-combobox-border-error: var(--fc-danger-300);
+    --fc-combobox-focus-ring-error: var(--fc-focus-ring-danger);
 
     --fc-combobox-max-width: 412px;
     --fc-combobox-padding: var(--fc-space-3);

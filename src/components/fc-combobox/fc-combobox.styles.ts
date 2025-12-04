@@ -13,12 +13,12 @@ export const styles = `
 	internals.setValidity() logic. */
 
 	:host([touched]:invalid) .fc-input {
-        background-color: var(--fc-combobox-error-bg);
-        border-color: var(--fc-combobox-error-color);
+        background-color: var(--fc-combobox-bg-error);
+        border-color: var(--fc-combobox-border-error);
     }
 
     :host([touched]:invalid) .fc-input:focus {
-        box-shadow: 0 0 0 2px var(--fc-combobox-error-focus-ring);
+        box-shadow: 0 0 0 2px var(--fc-combobox-focus-ring-error);
     }
 
 	.fc-input {
@@ -79,13 +79,13 @@ export const styles = `
     }
 
 	.fc-input:disabled {
-		background: var(--fc-combobox-disabled-bg);
+		background: var(--fc-combobox-bg-disabled);
         cursor: not-allowed;
 		box-shadow: none;
     }
 
 	.fc-input:disabled::placeholder {
-		color: var(--fc-combobox-disabled-placeholder);
+		color: var(--fc-combobox-placeholder-disabled);
     }
 
 	.fc-input:disabled:hover {
