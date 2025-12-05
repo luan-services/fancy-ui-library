@@ -39,22 +39,24 @@ defineAll();
     name="username" 
     placeholder="Enter username" 
     required 
-    minlength="3">
+    minlength="3"
+  >
   </fc-input>
 
   <fc-input 
     type="password" 
     name="password" 
-    required>
+    required
+  >
   </fc-input>
 </form>
 ```
 
 -----
 
-## 2\. etting Properties & Attributes
+## 2\. Setting Properties & Attributes
 
-You can configure the component using HTML Attributes or JavaScript Properties.
+Most fc-components have properties that can be set as custom attributes, they also accepts default attributes. You can configure the component using HTML Attributes or JavaScript Properties.
 
 ### Via HTML Attributes
 
@@ -71,18 +73,17 @@ Use this for static configuration or simple strings.
 
 ### Via JavaScript Properties
 
-Use this for dynamic data, complex objects, or event listeners.
+In some cases, you'll need to pass dynamic data, complex objects, arrays or event listeners. You can't do that as attributes, you must
+pass them with Javascript:
 
 ```javascript
 const input = document.querySelector('fc-input');
 
-// 1. Direct Property Access (Recommended)
 input.value = "New Value";
 input.disabled = true;
 input.required = false;
 
-// 2. The setProps() Helper
-// Useful for setting multiple properties at once using a configuration object.
+// The setProps() helper: useful for setting multiple properties at once using a configuration object.
 input.setProps({
   value: "Dynamic Value",
   placeholder: "Updated Placeholder",
@@ -154,13 +155,7 @@ fc-input[touched]:invalid {
 
 ## 4\. Events
 
-Each element has its own unique events that are emitted from it. The list below shows specific usage example of <fc-input> events, to see the others, check their own docs.
-
-| Event | Description | Data Detail |
-| :--- | :--- | :--- |
-| **`fc-input`** | Fired synchronously on keystroke. Use this for real-time validation or filtering. | `{ value: string }` |
-| **`fc-change`** | Fired on blur/commit. Use this for submitting data. Native `change` **does not** bubble. | `{ value: string, files: FileList }` |
-| **`blur`** | Native event. The component listens to this to trigger the "touched" UI state. | N/A |
+Each element has its own unique events that are emitted from it. Even though the elements still standart events like `input`, `click`, `blur`, because of the nature of the Shadow DOM, it is highly recommended to listen to only custom Events.
 
 ```javascript
 const el = document.querySelector('fc-input');
@@ -178,7 +173,7 @@ el.addEventListener('fc-change', (e) => {
 
 ## 5\. Validation Logic
 
-Some elements has validation logic, most are form field elements, link inputs, select, combobox, etc. Validation works in two layers: Visual errors (red borders) are **suppressed** until the user interacts with the field (blur) or submits the form.
+Some elements has validation logic, most are form field elements, link inputs, select, combobox, etc. Visual errors (red borders) are **suppressed** until the user interacts with the field (blur) or submits the form. Validation works in two layers:
 
 ### Layer 1: Native Attributes
 
@@ -187,6 +182,7 @@ Standard HTML5 attributes work automatically.
   * `required`, `min`, `max`, `step`
   * `minlength`, `maxlength`, `pattern`
   * `type="email"`, `type="url"`
+
 
 ### Layer 2: Custom Validator Function
 
@@ -204,6 +200,23 @@ usernameInput.validator = (value) => {
 };
 ```
 
+On both ways, you can also use our custom `<fc-error>` component to display the error message as a paragraph:
+
+```html
+<fc-input 
+  id="email-field"
+  label="Email" 
+  type="email" 
+  disabled
+  placeholder="john@doe.com"
+>
+</fc-input>
+<fc-error 
+  for="email-field"
+>
+</fc-error>
+```
+
 -----
 
 ## 6\. Accessibility (A11y)
@@ -215,18 +228,9 @@ usernameInput.validator = (value) => {
 
 -----
 
-## 7\. Technical Implementation
+## 7\. Attribute Reflection
 
-### React & "Controlled" Value
-
-The `value` property is designed to avoid infinite render loops in React.
-
-  * **Standard Behavior:** Setting `el.value = "x"` usually reflects to `el.setAttribute("value", "x")`.
-  * **FcInput Behavior:** Setting `value` updates the internal state and the input, but **does not** touch the DOM attribute. This allows React to pass values down without the component fighting back.
-
-### Attribute Reflection
-
-For all other properties (`disabled`, `placeholder`, `min`, etc.), the component uses **Reflection**.
+For all properties (`disabled`, `placeholder`, `min`, etc.), the component uses **Reflection**.
 
   * **JS to HTML:** Setting `el.disabled = true` adds the `disabled` attribute to the HTML tag.
   * **HTML to JS:** Changing the HTML attribute triggers `attributeChangedCallback`, which updates the internal logic.
