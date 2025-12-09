@@ -2,7 +2,6 @@
 export const styles = `
 	:host {
 		display: block;
-		color-scheme: var(--fc-color-scheme);
 		width: 100%;
 		box-sizing: border-box;
     	font-family: var(--fc-font-family);
