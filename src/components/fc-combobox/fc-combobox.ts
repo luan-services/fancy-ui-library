@@ -1,5 +1,6 @@
 import { template } from './fc-combobox.template';
-import { FcOption } from '../fc-option';
+import { FcOption } from '../fc-option'; // import just the FcOption TYPE definition
+import { calculateBottomAvaliableSpace, calculateTopAvaliableSpace } from '../../utils/fc-elements.utils';
 // v1.0.4
 
 /* in this component, the properties 'label' doesn't exist as an ACTUAL attribute:
@@ -917,12 +918,21 @@ export class FcCombobox extends HTMLElement {
 		}
 
 		const dropdown = this.dropdownEl;
-
 		// if it should be open
 		if (show) {
+
+			/* calculates available space for dropdown */
+			const spaceBelow = calculateBottomAvaliableSpace(this.inputEl);
+			const spaceAbove = calculateTopAvaliableSpace(this.inputEl);
+			console.log(spaceAbove, spaceBelow);
 			dropdown.hidden = false;
 			this.setAttribute('open', 'true');
 			this.inputEl.setAttribute("aria-expanded", "true");
+
+			/* if bottom space is not enought for dropdown size AND top space has more space, opens to top */
+			const shouldOpenUp = (spaceBelow < dropdown.clientHeight) && (spaceAbove > spaceBelow);
+			dropdown.classList.toggle('opens-up', shouldOpenUp);
+
 			return;
 		}
 

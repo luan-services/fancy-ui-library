@@ -11,3 +11,7 @@
 - Removed onOustideClick listener from <fc-combobox>, not needed anymore.
 - Documentation update.
 - Fixed bug on <fc-combobox> and <fc-input> caused by fixed id on shadow DOM elements.
+
+### Version 1.1.1
+
+- Added util to calculate wheter <fc-combobox> dropdown should open down or up.

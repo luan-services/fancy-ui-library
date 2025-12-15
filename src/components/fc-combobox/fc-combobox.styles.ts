@@ -69,6 +69,11 @@ export const styles = `
 		flex-direction: column;
 		gap: 4px;
 	}
+
+	.fc-options.opens-up {
+        top: auto;
+        bottom: calc(100% + 6px);
+    }
 	
 	.fc-options[hidden] {
         display: none !important;
