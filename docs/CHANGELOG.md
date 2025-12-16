@@ -15,3 +15,4 @@
 ### Version 1.1.1
 
 - Added util to calculate wheter <fc-combobox> dropdown should open down or up.
+- Fixed a race condition bug on set value property on <fc-combobox>, now it only runs at slotChangeCallback

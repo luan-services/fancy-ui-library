@@ -290,25 +290,6 @@ export class FcCombobox extends HTMLElement {
 			return;
 		}
 
-        // sync the UI (find the option and select it)
-        const options = this.querySelectorAll('fc-option') as NodeListOf<FcOption>;
-
-		options.forEach((option) => {
-			const selected = (option.value === newValue); // checks if the selected option is the current option
-			option.selected = selected // if so, set the option as selected by calling set selected from child fc-option, if not, remove selected attribute(query === label)
-			option.hidden = !selected // if so, show the option
-			option.active = false; // now it is needed to remove active status from all options when a option is selected
-
-			if (selected) {
-            	this.inputEl.value = option.label;
-        	}
-        });
-
-		// if no matching option found from value, updates 'value' to it		
-		if (this.inputEl.value === '') {
-			this.inputEl.value = newValue;
-		};
-
 		this.syncValidity();
     }
 
@@ -591,13 +572,31 @@ export class FcCombobox extends HTMLElement {
 			this.internals.setFormValue(restoredValue);
 
 			const options = this.querySelectorAll('fc-option') as NodeListOf<FcOption>;
+			let foundMatch = false;
 
-			options.forEach(option => {
-				if (option.value === restoredValue && this.inputEl) {
+			options.forEach((option) => {
+				const selected = (option.value === this._value); // checks if the selected option is the current option
+
+				option.selected = selected // if so, set the option as selected by calling set selected from child fc-option, if not, remove selected attribute(query === label)
+				option.hidden = !selected // if so, show the option
+
+				// if it is the selected one, update the visible Input Text to match this option's label
+				// this fixes the issue where the input might hold a "stale" label or raw value
+				if (selected) {
 					this.inputEl.value = option.label;
-					option.selected = true;
+					foundMatch = true;
 				}
 			});
+
+			/* now, if there is not a match, we should pass the option value to the input label, and unhide matching options
+			(optional, if we don't want to pass value to the input label, we unhide ALL options */
+			if (!foundMatch && this.inputEl.value === '') {
+				this.inputEl.value = this._value;
+				options.forEach((option) => {
+					const match = option.label.includes(this._value); // checks if the selected option is the current option
+					option.hidden = !match // if so, show the option
+				});	
+			}
 			this.syncValidity();
 		};
 	}
@@ -768,7 +767,7 @@ export class FcCombobox extends HTMLElement {
 		this.toggleDropdown(match);
 	};
 
-	// specif function for react to ensure <fc-combobox> value property will be correctly added to the <fc-option> that was added later
+	// specific function for react to ensure <fc-combobox> value property will be correctly added to the <fc-option> that was added later
 	private onSlotChange() {
 		// if there is no value set internally, we don't need to sync anything
         if (!this._value) {
@@ -783,7 +782,6 @@ export class FcCombobox extends HTMLElement {
 
 			option.selected = selected // if so, set the option as selected by calling set selected from child fc-option, if not, remove selected attribute(query === label)
 			option.hidden = !selected // if so, show the option
-			option.active = false; // now it is needed to remove active status from all options when a option is selected
 
             // if it is the selected one, update the visible Input Text to match this option's label
             // this fixes the issue where the input might hold a "stale" label or raw value
@@ -793,8 +791,14 @@ export class FcCombobox extends HTMLElement {
             }
         });
 
+		/* now, if there is not a match, we should pass the option value to the input label, and unhide matching options
+		(optional, if we don't want to pass value to the input label, we unhide ALL options */
         if (!foundMatch && this.inputEl.value === '') {
             this.inputEl.value = this._value;
+			options.forEach((option) => {
+				const match = option.label.includes(this._value); // checks if the selected option is the current option
+				option.hidden = !match // if so, show the option
+			});	
         }
 
 		this.syncValidity();
@@ -924,7 +928,6 @@ export class FcCombobox extends HTMLElement {
 			/* calculates available space for dropdown */
 			const spaceBelow = calculateBottomAvaliableSpace(this.inputEl);
 			const spaceAbove = calculateTopAvaliableSpace(this.inputEl);
-			console.log(spaceAbove, spaceBelow);
 			dropdown.hidden = false;
 			this.setAttribute('open', 'true');
 			this.inputEl.setAttribute("aria-expanded", "true");
