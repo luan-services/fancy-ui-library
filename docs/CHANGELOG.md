@@ -16,3 +16,9 @@
 
 - Added util to calculate wheter <fc-combobox> dropdown should open down or up.
 - Fixed a race condition bug on set value property on <fc-combobox>, now it only runs the otpions sate update at slotChangeCallback.
+
+### Version 1.2.0
+
+- Updated package.json to add keywords.
+- Fixed bug on <fc-combobox> onSlotChangeLogic.
+- Added new component: <fc-label>

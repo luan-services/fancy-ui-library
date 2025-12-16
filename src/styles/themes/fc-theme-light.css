@@ -58,6 +58,10 @@
     --fc-input-shadow: var(--fc-shadow-none);
 
     /* fc-error component */
-
     --fc-error-fg: var(--fc-danger-300);
+
+    /* fc-label component */
+    --fc-label-font-size: var(--fc-font-size-md);
+    --fc-label-font-weight: var(--fc-font-weight-bold);
+    --fc-label-fg: var(--fc-gray-900);
 }
