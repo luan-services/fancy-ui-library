@@ -782,7 +782,7 @@ export class FcCombobox extends HTMLElement {
 
         options.forEach((option) => {
             const selected = (option.value === this._value); // checks if the selected option is the current option
-
+			
 			option.selected = selected // if so, set the option as selected by calling set selected from child fc-option, if not, remove selected attribute(query === label)
 			option.hidden = !selected // if so, show the option
 
@@ -799,7 +799,8 @@ export class FcCombobox extends HTMLElement {
         if (!foundMatch && this.inputEl.value === '') {
             this.inputEl.value = this._value;
 			options.forEach((option) => {
-				const match = option.label.includes(this._value); // checks if the selected option is the current option
+				console.log(option.value)
+				const match = option.label.toLowerCase().includes((this._value).toLowerCase()); // checks if the selected option is the current option
 				option.hidden = !match // if so, show the option
 			});	
         }
