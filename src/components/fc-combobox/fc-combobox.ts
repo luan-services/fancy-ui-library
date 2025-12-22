@@ -859,6 +859,16 @@ export class FcCombobox extends HTMLElement {
 
     private onInvalid(e: Event) {
         this.setAttribute('touched', '');
+
+		/* when onInvalid runs it is because internal input launched an invalid event. this event dies on the component, it is a formInternals
+		event that is launched by the BROWSER and it does not bubble up, parents components like a form, cannot hear it
+		we are re-dispatching an fc-invalid event so the user can listen to invalid events not just on <fc-combobox> but on any element 
+		wrapping it */
+		this.dispatchEvent(new CustomEvent('fc-invalid', {
+			bubbles: true,  
+			composed: true, 
+			detail: { originalEvent: e }
+		}));
     }
 
     /* this is a helper to set the active option on onKeyDown method */
@@ -927,6 +937,20 @@ export class FcCombobox extends HTMLElement {
 		// if it should be open
 		if (show) {
 
+			/*custom event dispatch when dropdown is open (for developer experience) */
+			const showEvent = new CustomEvent('fc-show', {
+				bubbles: true,
+				composed: true,
+				cancelable: true // Allows user to call e.preventDefault() to stop opening
+			});
+			
+			this.dispatchEvent(showEvent);
+
+			/* let's user cancel the drodpown opening by cancelling the event */
+			if (showEvent.defaultPrevented) {
+				return;
+			}
+
 			/* calculates available space for dropdown */
 			const spaceBelow = calculateBottomAvaliableSpace(this.inputEl);
 			const spaceAbove = calculateTopAvaliableSpace(this.inputEl);
@@ -945,6 +969,14 @@ export class FcCombobox extends HTMLElement {
 			}, 0);
 
 			return;
+		}
+
+		/* dispatch dropdown close event if it was actually open (for developer experience) */
+		if (!this.dropdownEl.hidden) {
+			this.dispatchEvent(new CustomEvent('fc-hide', {
+				bubbles: true,
+				composed: true
+			}));
 		}
 
 		/* remove listener on close */

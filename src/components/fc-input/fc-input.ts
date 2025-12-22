@@ -658,6 +658,16 @@ export class FcInput extends HTMLElement {
     don't blur the input field and click directly on submit (or hit enter) */
     private onInvalid(e: Event) {
         this.setAttribute('touched', '');
+
+		/* when onInvalid runs it is because internal input launched an invalid event. this event dies on the component, it is a formInternals
+		event that is launched by the BROWSER and it does not bubble up, parents components like a form, cannot hear it
+		we are re-dispatching an fc-invalid event so the user can listen to invalid events not just on <fc-combobox> but on any element 
+		wrapping it */
+		this.dispatchEvent(new CustomEvent('fc-invalid', {
+			bubbles: true,  
+			composed: true, 
+			detail: { originalEvent: e }
+		}));
     }
 
     private onTogglePassword(e: MouseEvent) {
