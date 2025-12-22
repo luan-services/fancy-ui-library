@@ -21,10 +21,8 @@
     --fc-option-bg-disabled: var(--fc-gray-900);
 	--fc-option-bg-hover: var(--fc-gray-700);
     --fc-option-bg-active: var(--fc-primary-500);
-	--fc-option-bg-selected: var(--fc-primary-600);
 	--fc-option-fg: var(--fc-gray-200);
     --fc-option-fg-disabled: var(--fc-gray-700);
-	--fc-option-fg-selected: var(--fc-primary-50);
 
     /* fc-input component */
     --fc-input-bg: var(--fc-gray-800);
