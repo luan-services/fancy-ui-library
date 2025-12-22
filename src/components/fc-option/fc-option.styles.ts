@@ -15,7 +15,6 @@ export const styles = `
         cursor: not-allowed;
     }
 		
-		
 	button.fc-option {
 		width: 100%;
 		box-sizing: border-box;
@@ -29,7 +28,31 @@ export const styles = `
 		cursor: pointer;
 		overflow: hidden;
 		text-overflow: ellipsis;
+
+		display: flex;
+        justify-content: space-between;
+        align-items: center;
 	}
+
+	.fc-option-text {
+        flex-grow: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-right: 12px; /* Spacing between text and checkmark */
+    }
+
+    .fc-option-icon {
+        display: none;
+        align-items: center;
+		justify-content: center;
+        color: inherit; 
+    }
+	
+	.fc-option-icon svg {
+		width: 20px;
+		height: 20px;
+    }
 
 	button.fc-option:hover {
 		background: var(--fc-option-bg-hover);
@@ -51,9 +74,8 @@ export const styles = `
 		background: var(--fc-option-bg-disabled);
 	}
 
-	button.fc-option[aria-selected="true"] {
-		background: var(--fc-option-bg-selected);
-		color: var(--fc-option-fg-selected);
-	}
+	button.fc-option[aria-selected="true"] .fc-option-icon {
+       display: flex;
+    }
 
 `;
