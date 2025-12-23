@@ -813,10 +813,13 @@ export class FcCombobox extends HTMLElement {
 			return;
 		}
 
-        const options = this.getVisibleOptions();
+        const options = this.querySelectorAll('fc-option') as NodeListOf<FcOption>;
+		const visibleOptions = Array.from(options).filter(
+			opt => !opt.hidden && !opt.disabled
+		);
         
         // if there is no available <fc-option> return
-        if (options.length === 0) {
+        if (visibleOptions.length === 0) {
 			return;
 		}
 
@@ -825,7 +828,7 @@ export class FcCombobox extends HTMLElement {
             this.toggleDropdown(true); 
             
             // if at end (length - 1), go to 0. else, go next
-            const nextIndex = this.activeIndex >= options.length - 1 ? 0 : this.activeIndex + 1;
+            const nextIndex = this.activeIndex >= visibleOptions.length - 1 ? 0 : this.activeIndex + 1;
             this.setActiveOption(nextIndex, options);
         } 
         else if (e.key === 'ArrowUp') {
@@ -833,16 +836,36 @@ export class FcCombobox extends HTMLElement {
             this.toggleDropdown(true);
 
             // if at start (0) or no selection (-1), go to end. else, go prev
-            const prevIndex = this.activeIndex <= 0 ? options.length - 1 : this.activeIndex - 1;
+            const prevIndex = this.activeIndex <= 0 ? visibleOptions.length - 1 : this.activeIndex - 1;
             this.setActiveOption(prevIndex, options);
         } 
         else if (e.key === 'Enter') {
             e.preventDefault(); 
-            
-            if (this.activeIndex > -1 && options[this.activeIndex]) {
-                const target = options[this.activeIndex];
-                this.selectOption(target);
+
+            if (this.activeIndex > -1 && visibleOptions[this.activeIndex]) {
+                const target = visibleOptions[this.activeIndex];
+
+                this.inputEl.value = target.label;
+                this._value = target.value;
+                this.internals.setFormValue(target.value);
+
+                options.forEach((option) => {
+                    const selected = (option.value === target.value);
+                    option.selected = selected;
+                    option.hidden = !selected;
+                    option.active = false; // clear active state on select
+                });
+
+                this.toggleDropdown(false);
+                this.syncValidity();
+                this.dispatchEvent(
+                    new CustomEvent('fc-change', {
+                        detail: { value: target.value, label: target.label },
+                        bubbles: true, composed: true,
+                    })
+                );
             }
+
         } 
         else if (e.key === 'Escape') {
             e.preventDefault();
@@ -872,55 +895,27 @@ export class FcCombobox extends HTMLElement {
     }
 
     /* this is a helper to set the active option on onKeyDown method */
-    private setActiveOption(index: number, visibleOptions: FcOption[]) {
-        // Remove active from all
-        this.querySelectorAll('fc-option').forEach(opt => (opt as FcOption).active = false);
+    private setActiveOption(index: number, allOptions: NodeListOf<FcOption>) {
 
+        allOptions.forEach(opt => (opt as FcOption).active = false);
+
+        /* get the current index and select the corresponding visible option */
         this.activeIndex = index;
+        const visibleOptions = Array.from(allOptions).filter(
+            opt => !(opt as FcOption).hidden && !(opt as FcOption).disabled
+        ) as FcOption[];
+
         const target = visibleOptions[index];
-        
+
         if (target) {
             target.active = true;
-			this.inputEl.setAttribute('aria-activedescendant', target.id); // adding active descendant attribute for screen readers 
+            this.inputEl.setAttribute('aria-activedescendant', target.id); // adding active descendant attribute for screen readers 
             target.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-			return;
+            return;
         }
 
-		// if no target, clear the attribute
+        // if no target, clear the attribute
         this.inputEl.removeAttribute('aria-activedescendant');
-    }
-
-    /* this is a helper to get all valid options on onKeyDown method */
-    private getVisibleOptions(): FcOption[] {
-        return Array.from(this.querySelectorAll('fc-option')).filter(
-			opt => !(opt as FcOption).hidden && !(opt as FcOption).disabled) as FcOption[];
-    }
-
-    /* this is a helper to select the active option on onKeyDown method */
-    private selectOption(option: FcOption) {
-        const value = option.value;
-        const label = option.label;
-
-        this.inputEl.value = label;
-        this._value = value;
-        this.internals.setFormValue(value);
-
-        const allOptions = this.querySelectorAll('fc-option') as NodeListOf<FcOption>;
-        allOptions.forEach((opt) => {
-            const selected = (opt.value === value);
-            opt.selected = selected;
-            opt.hidden = !selected;
-            opt.active = false; // clear active state on select
-        });
-
-        this.toggleDropdown(false);
-		this.syncValidity();
-        this.dispatchEvent(
-            new CustomEvent('fc-change', {
-                detail: { value, label },
-                bubbles: true, composed: true,
-            })
-        );
     }
 
 	private toggleDropdown(show: boolean) {
@@ -1071,3 +1066,9 @@ export class FcCombobox extends HTMLElement {
 		}
 	}
 }
+
+
+
+
+
+
