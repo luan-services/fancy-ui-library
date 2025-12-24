@@ -40,3 +40,7 @@
 - Added custom validation to <fc-select>, removed strict validation from it.
 - Split toggledropdown function on <fc-select> into hideDropdown and showDropdown
 - Updated <fc-select> CSS Tokens.
+
+### Version 1.3.2 (Bug Fix)
+
+- Adding missing validatorFunction getter and setter on <fc-select>

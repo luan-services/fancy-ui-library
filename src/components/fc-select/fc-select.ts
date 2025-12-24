@@ -125,8 +125,16 @@ export class FcSelect extends HTMLElement {
         this.removeAttribute('required');
     }
 
-    public get readonly() { 
-        return this.hasAttribute('readonly'); 
+    /* getters and setters for user's the validator function */
+    public get validator() {
+        return this._validatorFunction;
+    }
+
+    public set validator(func: ((value: string) => string | null) | null) {
+        this._validatorFunction = func;
+        
+        // re-validate immediately when the logic changes, if the field is already filled, this will show/hide errors instantly.
+        this.syncValidity();
     }
     
     connectedCallback() {
