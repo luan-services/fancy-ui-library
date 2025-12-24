@@ -182,7 +182,7 @@ export class FcSelect extends HTMLElement {
             this.inputEl.disabled = isDisabled; 
             this.internals.ariaDisabled = isDisabled ? 'true' : 'false';
             if (isDisabled) {
-                this.toggleDropdown(false);
+                this.hideDropdown();
             }
         }
 
@@ -212,7 +212,7 @@ export class FcSelect extends HTMLElement {
             option.selected = false;
         });
         
-        this.toggleDropdown(false);
+        this.hideDropdown();
         this.removeAttribute('touched'); 
         this.syncValidity();
 
@@ -254,7 +254,11 @@ export class FcSelect extends HTMLElement {
             return;
         }
         
-        this.toggleDropdown(this.dropdownEl.hidden);
+        if (this.dropdownEl.hidden) {
+            this.showDropdown();
+        } else {
+            this.hideDropdown();
+        }
     }
     
     private onChange(e: Event) {
@@ -288,7 +292,7 @@ export class FcSelect extends HTMLElement {
             option.active = false; 
         });
 
-        this.toggleDropdown(false); 
+        this.hideDropdown(); 
         this.syncValidity();
 
         this.dispatchEvent(
@@ -302,7 +306,7 @@ export class FcSelect extends HTMLElement {
 
     private onOutsideClick(e: MouseEvent) { 
         if (!this.contains(e.target as Node)) {
-            this.toggleDropdown(false);
+            this.hideDropdown();
         }
     }
 
@@ -310,7 +314,7 @@ export class FcSelect extends HTMLElement {
 		const target = e.relatedTarget as Node;
 
 		if (!target || !this.contains(target)) {
-			this.toggleDropdown(false);
+			this.hideDropdown();
 		}
     };
 
@@ -350,7 +354,7 @@ export class FcSelect extends HTMLElement {
             e.preventDefault(); 
             // If closed, open it on Arrow Down
             if (this.dropdownEl.hidden) {
-                this.toggleDropdown(true);
+                this.showDropdown();
                 return;
             }
             
@@ -361,7 +365,7 @@ export class FcSelect extends HTMLElement {
             e.preventDefault();
             
             if (this.dropdownEl.hidden) {
-                this.toggleDropdown(true);
+                this.showDropdown();
                 return;
             }
 
@@ -373,22 +377,22 @@ export class FcSelect extends HTMLElement {
             e.preventDefault(); 
 
             if (this.dropdownEl.hidden) {
-                this.toggleDropdown(true);
+                this.showDropdown();
             } else {
                 if (this.activeIndex > -1 && options[this.activeIndex]) {
                     const target = options[this.activeIndex];
                     this.selectOption(target);
                 } else {
-                    this.toggleDropdown(false);
+                    this.hideDropdown();
                 }
             }
         } 
         else if (e.key === 'Escape') {
             e.preventDefault();
-            this.toggleDropdown(false);
+            this.hideDropdown();
         }
         else if (e.key === 'Tab') {
-            this.toggleDropdown(false);
+            this.hideDropdown();
         }
 
         // type-ahead Logic
@@ -480,7 +484,7 @@ export class FcSelect extends HTMLElement {
             opt.active = false;
         });
 
-        this.toggleDropdown(false);
+        this.hideDropdown();
         this.syncValidity();
         this.dispatchEvent(
             new CustomEvent('fc-change', {
@@ -490,79 +494,84 @@ export class FcSelect extends HTMLElement {
         );
     }
 
-    private toggleDropdown(show: boolean) {
-        if (!this.dropdownEl) {
-            return;
+    private showDropdown() {
+		if (!this.dropdownEl || this.disabled) {
+			return;
+		};
+
+		const dropdown = this.dropdownEl;
+
+		/*custom event dispatch when dropdown is open (for developer experience) */
+		const showEvent = new CustomEvent('fc-show', {
+			bubbles: true,
+			composed: true,
+			cancelable: true // allows user to call e.preventDefault() to stop opening
+		});
+		
+		this.dispatchEvent(showEvent);
+
+		/* let's user cancel the drodpown opening by cancelling the event */
+		if (showEvent.defaultPrevented) {
+			return;
+		}
+
+		/* calculates available space for dropdown */
+		const spaceBelow = calculateBottomAvaliableSpace(this.inputEl);
+		const spaceAbove = calculateTopAvaliableSpace(this.inputEl);
+		dropdown.hidden = false;
+		this.setAttribute('open', 'true');
+		this.inputEl.setAttribute("aria-expanded", "true");
+
+		/* if bottom space is not enought for dropdown size AND top space has more space, opens to top */
+		const shouldOpenUp = (spaceBelow < dropdown.clientHeight) && (spaceAbove > spaceBelow);
+		dropdown.classList.toggle('opens-up', shouldOpenUp);
+
+        // Scroll to currently selected option
+        const options = this.getVisibleOptions();
+        const selectedIndex = options.findIndex(opt => opt.value === this._value);
+        
+        if (selectedIndex >= 0) {
+            this.setActiveOption(selectedIndex, options);
+        } else {
+            this.activeIndex = -1; // Reset if no selection
         }
 
-        if (this.disabled && show) {
-            return;
-        }
-        
-        const dropdown = this.dropdownEl;
-        
-        if (show) {
+		/* this listener is for when the user clicks outside the input so the dropdown can close this is a DOM event 
+		listener, so it must be cleaned onDisconnectCallback (when the element is removed from the dom) to prevent memory leak */
+		setTimeout(() => {
+			document.addEventListener('click', this.onOutsideClick);
+		}, 0);
 
-			/*custom event dispatch when dropdown is open (for developer experience) */
-			const showEvent = new CustomEvent('fc-show', {
+		return;
+
+	}
+
+	private hideDropdown() {
+		if (!this.dropdownEl) {
+			return;
+		};
+
+		/* dispatch dropdown close event if it was actually open (for developer experience) */
+		if (!this.dropdownEl.hidden) {
+			this.dispatchEvent(new CustomEvent('fc-hide', {
 				bubbles: true,
-				composed: true,
-				cancelable: true 
-			});
-			
-			this.dispatchEvent(showEvent);
-
-			/* let's user cancel the drodpown opening by cancelling the event */
-			if (showEvent.defaultPrevented) {
-				return;
-			}
-
-            const spaceBelow = calculateBottomAvaliableSpace(this.inputEl);
-            const spaceAbove = calculateTopAvaliableSpace(this.inputEl);
-            dropdown.hidden = false;
-            this.setAttribute('open', 'true');
-            this.inputEl.setAttribute("aria-expanded", "true");
-
-            const shouldOpenUp = (spaceBelow < dropdown.clientHeight) && (spaceAbove > spaceBelow);
-            dropdown.classList.toggle('opens-up', shouldOpenUp);
-
-            // Scroll to currently selected option
-            const options = this.getVisibleOptions();
-            const selectedIndex = options.findIndex(opt => opt.value === this._value);
-            
-            if (selectedIndex >= 0) {
-                this.setActiveOption(selectedIndex, options);
-            } else {
-                this.activeIndex = -1; // Reset if no selection
-            }
-            
-			/* this listener is for when the user clicks outside the input so the dropdown can close this is a DOM event 
-			listener, so it must be cleaned onDisconnectCallback (when the element is removed from the dom) to prevent memory leak */
-			setTimeout(() => {
-				document.addEventListener('click', this.onOutsideClick);
-			}, 0);
-
-            return;
-        }
-
-        /* dispatch dropdown close event if it was actually open (for developer experience) */
-        if (!this.dropdownEl.hidden) {
-            this.dispatchEvent(new CustomEvent('fc-hide', {
-                bubbles: true,
-                composed: true
-            }));
-        }
+				composed: true
+			}));
+		}
 
 		/* remove listener on close */
 		document.removeEventListener('click', this.onOutsideClick);
 
-        this.dropdownEl.hidden = true;
-        this.removeAttribute('open');
-        this.inputEl.setAttribute("aria-expanded", "false");
+		this.dropdownEl.hidden = true;
+		this.removeAttribute('open');
+		this.inputEl.setAttribute("aria-expanded", "false");
+
+		// reset active option and index when closing
         this.activeIndex = -1;
         this.querySelectorAll('fc-option').forEach(opt => (opt as FcOption).active = false);
-        this.inputEl.removeAttribute('aria-activedescendant');
-    }
+		// remove the active option id from aria-activedescendant attribute
+		this.inputEl.removeAttribute('aria-activedescendant');
+	}
 
     private syncValidity() {
         if (!this.inputEl) {

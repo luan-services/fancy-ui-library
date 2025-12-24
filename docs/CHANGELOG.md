@@ -38,3 +38,4 @@
 ### Version 1.3.1
 
 - Added custom validation to <fc-select>, removed strict validation from it.
+- Split toggledropdown function on <fc-select> into hideDropdown and showDropdown
