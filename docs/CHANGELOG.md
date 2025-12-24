@@ -34,3 +34,7 @@
 - Added `fc-hide` and `fc-show`events on <fc-combobox> for when dropdown is toggled.
 - Updated <fc-combobox> to remove unused functions.
 - Split toggledropdown function on <fc-combobox> into hideDropdown and showDropdown
+
+### Version 1.3.1
+
+- Added custom validation to <fc-select>, removed strict validation from it.

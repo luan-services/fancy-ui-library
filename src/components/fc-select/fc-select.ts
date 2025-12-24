@@ -22,6 +22,9 @@ export class FcSelect extends HTMLElement {
     private searchBuffer: string = '';
     private searchTimeout: any = null;
 
+    /* this will store user's custom validation function */
+    private _validatorFunction: ((value: string) => string | null) | null = null;
+
     constructor() {
         super();
         const shadow = this.attachShadow({ mode: 'open', delegatesFocus: true}); 
@@ -566,6 +569,7 @@ export class FcSelect extends HTMLElement {
             return;
         }
 
+        // first check native inputEl validity, if invalid, set the error and return
         if (!this.inputEl.validity.valid) {
                 this.internals.setValidity(
                     this.inputEl.validity,
@@ -578,21 +582,23 @@ export class FcSelect extends HTMLElement {
         const options = this.querySelectorAll('fc-option') as NodeListOf<FcOption>;
         let match = false;
 
-        options.forEach(option => {
-            if (option.value === this._value) {
-                match = true;
-            }
-        });
+        // here is a second layer of validation, it validates based on user's function
+        if (this._validatorFunction) {
+            // run the user's function passing the current value, if it is null, the form is valid, if it is a string, form is invalid
+            const customErrorMessage = this._validatorFunction(this.value);
 
-        if (!match) {
-            this.internals.setValidity(
-                { customError: true },
-                "Please select a valid option from the list.",
-                this.inputEl
-            );
-            return;
+            // if the function returns a string, set the erorr
+            if (customErrorMessage) {
+                this.internals.setValidity(
+                    { customError: true }, // mark as custom error
+                    customErrorMessage,    // set the message returned by the function
+                    this.inputEl           // bind the target element
+                );
+                return;
+            }
         }
 
+        // valid
         this.internals.setValidity({});
     }
     
