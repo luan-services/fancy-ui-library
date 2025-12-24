@@ -22,3 +22,15 @@
 - Updated package.json to add keywords.
 - Fixed bug on <fc-combobox> onSlotChangeLogic.
 - Added new component: <fc-label>
+
+
+### Version 1.3.0
+
+- Added new component: <fc-select>
+- Added icon checkmark on <fc-option> on selection and removed selection colors.
+- Update icons to allow custom height/width.
+- Refactor click listener on <fc-combobox> for better performance.
+- Added new `fc-invalid` event on <fc-combobox> and <fc-input> for elements outside it to listen.
+- Added `fc-hide` and `fc-show`events on <fc-combobox> for when dropdown is toggled.
+- Updated <fc-combobox> to remove unused functions.
+- Split toggledropdown function on <fc-combobox> into hideDropdown and showDropdown

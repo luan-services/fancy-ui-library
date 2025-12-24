@@ -9,10 +9,21 @@
 	</head>
 	<body>
         <h1 class="h1">Fancy UI HTML Test Sheet</h1>
+
+        <div class="container">
+            <h2 class="h2">FC-Select:</h2>
+            <fc-select placeholder="Select a restaurant...">
+                    <fc-option value="fastfood-1">McDonalds</fc-option>
+                    <fc-option value="fastfood-2">Subway</fc-option>
+                    <fc-option value="fastfood-3" disabled="true">Burger King</fc-option>
+                    <fc-option value="fastfood-4">Domino's</fc-option>
+            </fc-select>
+        </div>
+        
         <div class="container">
             <h2 class="h2">FC-Combobox:</h2>
-
-            <form style="display: flex; gap: 16px; align-items: center;">
+            
+            <form id="countries" style="display: flex; gap: 16px; align-items: center;">
                 <fc-combobox value="country-1" placeholder="Search for a country..." name="country" strict> <!-- setting value here will create an attribute 'value' -->
                     <fc-option value="country-1">France</fc-option>
                     <fc-option value="country-2">Japan</fc-option>
@@ -22,11 +33,9 @@
                 </fc-combobox>
                 <button type="submit">click</button>
             </form>
-
             <fc-combobox placeholder="Search for a instrument" name="instrument" disabled="true">
                 <fc-option value="country-1" disabled>Guitar</fc-option>
             </fc-combobox>
-
             
             <fc-combobox id="cb-fruits"> 
             </fc-combobox>
@@ -98,13 +107,28 @@
             window.addEventListener('load', () => {
 
                 // adding a listener to test how fc-combobox can be used as form component when 'name' is set
+
+                const countriesForm = document.getElementById("countries")
                                 
-                document.querySelector("form").addEventListener("submit", e => {
+                countriesForm.addEventListener("submit", e => {
                     e.preventDefault();
                     const data = new FormData(e.target);
                     console.log([...data.entries()]);
                 });
 
+                countriesForm.addEventListener("fc-invalid", e => {
+                    e.preventDefault();
+                    const data = new FormData(e.currentTarget);
+                    console.log([...data.entries()]);
+                    console.log("CAUGHT: fc-invalid"); 
+                });
+
+                countriesForm.addEventListener("invalid", e => {
+                    e.preventDefault();
+                    const data = new FormData(e.currentTarget);
+                    console.log([...data.entries()]);
+                    console.log("CAUGHT: invalid"); 
+                });
                 // manually adding all data from cbFruits via js
 
                 const cbOptions = [
