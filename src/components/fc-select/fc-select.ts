@@ -6,36 +6,54 @@ import { calculateBottomAvaliableSpace, calculateTopAvaliableSpace } from '../..
 
 export class FcSelect extends HTMLElement {
     
+    /* this is a static method that tells the browser which atributes should be 'watched', that means whenever any
+    attributes are set by the user like <fc-input name="a">, 'attributeChangedCallback' will be called. */
     static get observedAttributes() {
         return ['placeholder', 'name', 'value', 'disabled', 'required'];
     }
 
+    
+    /* these are declared attributes that will store a reference to the input and dropdown elements inside the shadow
+    DOM, so we can edit it later */
     private inputEl!: HTMLInputElement;
     private dropdownEl!: HTMLElement;
     
+    // this signals the browser this custom element should participate in forms, allowing its value to be submitted with the form data.
     static formAssociated = true; 
+	// this is an reference that provides methods and properties for custom elements to access form control features
     private internals: ElementInternals;
 
+    // references the current selected option's value
     private _value: string = '';
+
+    // tracks the current index of the active option (for keyboard navivation)
     private activeIndex: number = -1;
 
     private searchBuffer: string = '';
     private searchTimeout: any = null;
 
-    /* this will store user's custom validation function */
+    /* this will store a reference to user's custom validation function when set */
     private _validatorFunction: ((value: string) => string | null) | null = null;
 
+    /* this is the class constructor, whenever you create a new element on js or at the dom, this will be called */
     constructor() {
-        super();
-        const shadow = this.attachShadow({ mode: 'open', delegatesFocus: true}); 
-        shadow.appendChild(template.content.cloneNode(true)); 
+        super(); // calls HTMLElement class constructor too, after that, runs the following code v
+        const shadow = this.attachShadow({ mode: 'open', delegatesFocus: true}); // creates a shadow DOM
+        shadow.appendChild(
+            template.content.cloneNode(true) // clone our html and css template and append it to the shadow DOM
+        ); 
 
-        this.internals = this.attachInternals(); 
+		// attatch iternals functions to the reference to use the form control features with 'this.internals.*'
+		this.internals = this.attachInternals(); 
 
-        this.inputEl = shadow.querySelector('.fc-input') as HTMLInputElement;
+		/* search for the elements inside shadowDOM by class and assign them to their properties */
+		this.inputEl = shadow.querySelector('.fc-input') as HTMLInputElement;
         this.dropdownEl = shadow.querySelector('.fc-options') as HTMLElement;
 
+		/* assigning random ids to the elements to prevent bugs if there is one or more ID */
+
         const randomId = Math.random().toString(36).substring(2, 9);
+
         const inputId = `fc-input-${randomId}`;
         const dropdownId = `fc-options-${randomId}`;
 
@@ -43,31 +61,77 @@ export class FcSelect extends HTMLElement {
         this.dropdownEl.id = dropdownId;
         this.inputEl.setAttribute('aria-controls', dropdownId);
 
+        /* about .bind(this) 
+        
+        when you add an event listener on any element inside this custom element and add a function from here, any 'this' inside 
+        the function will be the element attached to the listener, ex:
+
+        this.inputEl.addEventListener('click', this.onClick); -> any 'this' inside onClick function will reference inputEl.
+
+        we don't want this behavior, we want 'this' to always be the parent element, <fc-select>, so we add these bindings
+        on every function. */
+
+        this.onClick = this.onClick.bind(this);
         this.onChange = this.onChange.bind(this);
         this.onOptionSelect = this.onOptionSelect.bind(this);
         this.onOutsideClick = this.onOutsideClick.bind(this);
         this.onFocusOut = this.onFocusOut.bind(this);
-        this.onSlotChange = this.onSlotChange.bind(this);
         this.onKeyDown = this.onKeyDown.bind(this);
+        this.onSlotChange = this.onSlotChange.bind(this);
         this.onBlur = this.onBlur.bind(this);
         this.onInvalid = this.onInvalid.bind(this);
-        
-        this.onClick = this.onClick.bind(this);
     }
 
-    public get validity() { return this.internals.validity; }
-    public get validationMessage() { return this.internals.validationMessage; }
-    public get willValidate() { return this.internals.willValidate; }
-    public checkValidity() { return this.internals.checkValidity(); }
-    public reportValidity() { return this.internals.reportValidity(); }
+	/* this is the public validity API (getters), <form> elements automatically know when their children are
+    valid or not, but the user (and specially our <fc-error> element) needs and api to check the validity status of our component */
+	
+	public get validity() { 
+        return this.internals.validity; 
+    }
 
-    public get placeholder() { return this.getAttribute("placeholder") ?? ""; }
-    public set placeholder(val: string) { this.setAttribute("placeholder", val); }
+	public get validationMessage() { 
+        return this.internals.validationMessage; 
+    }
 
-    public get name() { return this.getAttribute('name') ?? ''; }
-    public set name(val: string) { this.setAttribute('name', val); }
+	public get willValidate() { 
+        return this.internals.willValidate; 
+    }
 
-    public get disabled() { return this.hasAttribute('disabled'); }
+	public checkValidity() { 
+        return this.internals.checkValidity(); 
+    }
+
+	public reportValidity() { 
+        return this.internals.reportValidity(); 
+    }
+
+	/* defines getter and setter methods to add attributes
+
+    NOTE: some getters and setters here are not for attributes, for example: set options is designed to set a list of <fc-option> 
+    elements inside the shadowDOM without actually doing it by html
+
+    every attribute of <fc-select> should have a getter and setter, but not all getters and setters are used to set attributes. */
+
+	public get placeholder() {
+		return this.getAttribute("placeholder") ?? "";
+	}
+
+	public set placeholder(val: string) {
+		this.setAttribute("placeholder", val);
+	}
+
+	public get name() {
+		return this.getAttribute('name') ?? '';
+	}
+
+	public set name(val: string) {
+		this.setAttribute('name', val);
+	}
+
+	public get disabled() {
+		return this.hasAttribute('disabled');
+	}
+
     public set disabled(val: boolean) {
         if (val) {
             this.setAttribute('disabled', 'true');
@@ -76,22 +140,40 @@ export class FcSelect extends HTMLElement {
         this.removeAttribute('disabled');
     }
 
-    public get value() { return this._value; }
-    public set value(newValue: string) {
-        if (this._value === newValue) return;
+	/* 'value' is a non-reflecting property, its setter does not create a 'value' attribute. is used to let this component to be 
+    'controlled' on react */
+	public get value() {
+		return this._value;
+	}
+
+	public set value(newValue: string) {
+        if (this._value === newValue) { // prevent infinite loops if the new value is the same
+			return;
+		}
 
         this._value = newValue;
         this.internals.setFormValue(newValue);
 
-        if (!this.inputEl) return;
-        this.syncValidity();
+		if (!this.inputEl) { // prevents crash if inputEl does not exist yet
+			return;
+		}
+
+		this.syncValidity();
     }
 
-    public get label() { return this.inputEl?.value ?? ''; }
+    public get label() { 
+        return this.inputEl?.value ?? ''; 
+    }
 
     public get options() {
         const slot:HTMLSlotElement | null = this.shadowRoot!.querySelector('slot'); 
-        const optionElements = slot!.assignedElements().filter((el) => el.tagName === 'FC-OPTION');
+
+        const optionElements = slot!.assignedElements().filter(
+            (el) => {
+                return el.tagName === 'FC-OPTION';
+            } 
+        );
+
         return optionElements.map(opt => ({
             label: (opt as FcOption).label, 
             value: (opt as FcOption).value
@@ -104,12 +186,18 @@ export class FcSelect extends HTMLElement {
 
         data.forEach((element) => {
             const optEl = document.createElement('fc-option');
+
             optEl.setAttribute('value', element.value);
             optEl.setAttribute('label', element.label); 
             optEl.textContent = element.label;
-            if (element.disabled) optEl.setAttribute('disabled', '');
+
+            if (element.disabled) {
+                optEl.setAttribute('disabled', '');
+            }
+
             this.appendChild(optEl);
         });
+
         this.syncValidity();
     }
     
@@ -140,6 +228,9 @@ export class FcSelect extends HTMLElement {
     connectedCallback() {
         this.internals.setFormValue(this.value); 
 
+        /* if the attributes below exists (if it was applied by the user (via js or directly with prop="")), apply the properties
+		to the respective children inside the shadow DOM */
+
         if (this.hasAttribute('placeholder')) {
             this.inputEl.placeholder = this.getAttribute('placeholder')!;
         }
@@ -154,35 +245,63 @@ export class FcSelect extends HTMLElement {
             this.inputEl.required = true;
         }
 
+        /* this functions add a click event listener to the input element for the dropdown to open on any click */
         this.inputEl.addEventListener('click', this.onClick);
-        
-        
+
+        /* this functions add an input event listener to the input element, whenever the user leave the field, 'onChange'
+        function will be called. */
         this.inputEl.addEventListener('change', this.onChange);
+
+        
+		/* this functions add an 'fc-option-select' event listener to our element, fc-option-select is a custom event created 
+        inside the <option> element that launches whenever the users click on the option, when this happens, onOptionSelect function will be called. */
         this.addEventListener('fc-option-select', this.onOptionSelect as EventListener);
         
+        /* this listener is for when the user clicks outside the input so the dropdown can close  */
         this.addEventListener('focusout', this.onFocusOut as EventListener);
+
+        /* this functions add an input event listener to the input element, whenever the user leave the field, 'onBlur'
+        function will be called. */
         this.inputEl.addEventListener('blur', this.onBlur);
+
+        /* this listener fires when a form wrapped around this input is submited (or anytime checkValidity() is called) */
         this.addEventListener('invalid', this.onInvalid);
 
+        /* this listeners is for react-only, rendering elements on react is a bit different, sometimes, it might render
+		<fc-select> BEFORE <fc-option>, so when it first runs, it might miss the <fc-options>'s and not initialize it correctly 
+
+		for react to work, this must be done for every created slot that manipulates data directly, since we have 
+        only 1, we do 'slot', but it could be 'slot[name="label"]'
+		*/
         const slot = this.shadowRoot!.querySelector('slot');
         slot?.addEventListener('slotchange', this.onSlotChange);
 
+        /* creates the keydown listener to handle keyboard navigation */
         this.inputEl.addEventListener('keydown', this.onKeyDown);
 
+        /* doing inital validating if the element starts with any 'value' */
         this.syncValidity();
     }
 
+    /* this is the function that the browser runs whenever an observed attribute is changed */
     attributeChangedCallback(name: string, _old: string, newVal: string) {
+
+        if (name === 'value') {
+            this.value = newVal; 
+        }
+
+       /* we check if inputEl exists here because very attribute below will be set directly on it and attributeChangeCallback
+       might run before inputEl is defined */
+		if (!this.inputEl) {
+            return;
+        }
+
         if (name === 'placeholder' && this.inputEl) {
             this.inputEl.placeholder = newVal;
         } 
 
         if (name === 'name') {
             this.internals.setFormValue(this.value);
-        }
-
-        if (name === 'value') {
-            this.value = newVal; 
         }
 
         if (name === 'disabled' && this.inputEl) {
@@ -200,7 +319,6 @@ export class FcSelect extends HTMLElement {
             this.inputEl.required = isRequired;
             this.syncValidity();
         }
-
     }
     
     disconnectedCallback() {
