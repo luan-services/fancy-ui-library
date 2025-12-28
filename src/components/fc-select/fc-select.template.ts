@@ -18,9 +18,13 @@ template.innerHTML = `
         readonly
     />
 
-    <svg class="fc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="6 9 12 15 18 9"></polyline>
-    </svg>
+    <span class="fc-input-chevron-icon" part="icon">
+        <slot name="chevron-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+        </slot>
+    </span>
 
     <div 
         part="options" 

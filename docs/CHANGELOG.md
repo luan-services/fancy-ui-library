@@ -55,3 +55,4 @@
 - Removed onFocus listener from <fc-combobox> and switched to onClick for better UX.
 - Updated onOptionSelect to prevent element focus loss when clicking on an option.
 - Fixed <fc-option> checked-icon slot sizing.
+- Updated <fc-select> to allow custom chevron icons.

@@ -45,6 +45,8 @@ export const styles = `
 
     .fc-option-icon {
         display: none;
+		width: var(--fc-option-icon-width);
+		height: var(--fc-option-icon-height);
         align-items: center;
 		justify-content: center;
         color: inherit; 
@@ -58,6 +60,7 @@ export const styles = `
 	slot[name="checked-icon"]::slotted(*) {
 		width: var(--fc-option-icon-width);
 		height: var(--fc-option-icon-height);
+        object-fit: contain;
 	}
 
 	button.fc-option:hover {
@@ -83,5 +86,4 @@ export const styles = `
 	button.fc-option[aria-selected="true"] .fc-option-icon {
        display: flex;
     }
-
 `;

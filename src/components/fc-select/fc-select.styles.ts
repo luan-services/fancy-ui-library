@@ -52,8 +52,7 @@ export const styles = `
         box-shadow: var(--fc-select-focus-ring);
     }
 
-    
-    .fc-chevron {
+    .fc-input-chevron-icon {
         position: absolute;
         right: 12px;
         top: 50%;
@@ -63,12 +62,25 @@ export const styles = `
         pointer-events: none;
         color: var(--fc-select-fg);
         transition: transform 0.2s ease;
+        align-items: center;
+		justify-content: center;
+        color: inherit; 
     }
-
     
-    :host([open]) .fc-chevron {
+    :host([open]) .fc-input-chevron-icon {
         transform: translateY(-50%) rotate(180deg);
     }
+
+	.fc-input-chevron-icon svg {
+		width: var(--fc-select-dropdown-icon-width);
+		height: var(--fc-select-dropdown-icon-height);
+    }
+
+	slot[name="chevron-icon"]::slotted(*) {
+		width: var(--fc-select-dropdown-icon-width);
+		height: var(--fc-select-dropdown-icon-height);
+        object-fit: contain;
+	}
 
     :host([disabled]) {
         cursor: not-allowed;
@@ -81,7 +93,7 @@ export const styles = `
         color: var(--fc-select-placeholder-disabled);
     }
 
-    :host([disabled]) .fc-chevron {
+    :host([disabled]) .fc-input-icon {
         color: var(--fc-select-placeholder-disabled);
     }
 
